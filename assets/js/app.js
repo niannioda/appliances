@@ -111,7 +111,7 @@ function recalc() {
   document.getElementById('total').textContent     = '₱' + fmt(total);
 }
 
-/* ── Payment Flow ────────────────────────────────────────────── */
+/* ── Payment Flow ────────────────────────────────────────────── tewateraterteaoiea0te00e*/
 function proceedPayment() {
   const totalText = document.getElementById('total').textContent;
 

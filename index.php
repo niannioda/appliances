@@ -7,9 +7,6 @@ $flash    = $_GET['flash'] ?? '';
 $flashMsg = urldecode($_GET['msg'] ?? '');
 
 $where = []; $params = []; $types = '';
-if ($category && $category !== 'All') {
-    $where[] = 'categories = ?'; $params[] = $category; $types .= 's';
-}
 if ($search !== '') {
     $where[] = 'product_name LIKE ?'; $params[] = "%$search%"; $types .= 's';
 }
@@ -244,5 +241,50 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/app.js"></script>
+
+<script>
+// ── CLIENT-SIDE CATEGORY FILTER ──────────────────────────────────────────────
+(function () {
+  const pills        = document.querySelectorAll('.cat-pill');
+  const allCards     = () => document.querySelectorAll('#productsGrid .product-card');
+  const resultsLabel = document.getElementById('resultsLabel');
+  const emptyState   = document.getElementById('productsGrid').querySelector('.empty-state');
+
+  function applyCategory(selectedCat) {
+    let visible = 0;
+
+    allCards().forEach(card => {
+      const match = selectedCat === 'All' || card.dataset.cat === selectedCat;
+      card.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
+
+    // Update results count
+    if (resultsLabel) {
+      resultsLabel.textContent = visible + ' product' + (visible !== 1 ? 's' : '');
+    }
+
+    // Show/hide the empty-state placeholder
+    if (emptyState) {
+      emptyState.style.display = visible === 0 ? 'flex' : 'none';
+    }
+  }
+
+  // Wire up pill clicks
+  pills.forEach(pill => {
+    pill.addEventListener('click', function () {
+      pills.forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      applyCategory(this.dataset.cat);
+    });
+  });
+
+  // Apply filter on initial page load (honours URL ?category= param)
+  const activePill = document.querySelector('.cat-pill.active');
+  if (activePill) {
+    applyCategory(activePill.dataset.cat);
+  }
+})();
+</script>
 </body>
 </html>

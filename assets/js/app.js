@@ -76,37 +76,21 @@ function renderCart() {
     const item = cart[id];
 
     html += `
-     <div class="cart-item" style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+      <div class="cart-item">
+        <div style="flex:1; min-width:0">
+          <div class="ci-name">${escHtml(item.name)}</div>
+          <div class="ci-price">
+            ₱${fmt(item.price)} × ${item.qty} = ₱${fmt(item.price * item.qty)}
+          </div>
+        </div>
 
-     <img src="${item.image}" width="50" height="50"
-          style="object-fit:cover; border-radius:8px;">
-
-     <div style="flex:1">
-       <div class="ci-name">${escHtml(item.name)}</div>
-       <div class="ci-price">
-         ₱${fmt(item.price)} × ${item.qty}
-         = ₱${fmt(item.price * item.qty)}
-       </div>
-     </div>
-
-     <!-- Quantity Controls -->
-     <div class="qty-controls" style="display:flex; align-items:center; gap:5px;">
-       <button class="qty-btn" onclick="changeQty('${id}', -1)">−</button>
-       <span class="qty-val">${item.qty}</span>
-       <button class="qty-btn"
-        onclick="changeQty('${id}', 1)"
-        ${item.qty >= item.stock ? 'disabled' : ''}>+</button>
-     </div>
-
-     <!-- Remove Button -->
-     <button onclick="removeItem('${id}')"
-       style="margin-left:10px; background:red; color:white; border:none;
-       padding:5px 8px; border-radius:5px; cursor:pointer;">
-       ×
-     </button>
-
-     </div>
-   `;
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty('${id}', -1)">−</button>
+          <span class="qty-val">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${id}', 1)" ${item.qty >= item.stock ? 'disabled' : ''}>+</button>
+        </div>
+      </div>
+    `;
   });
 
   container.innerHTML = html;

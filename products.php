@@ -74,19 +74,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // ── DELETE ────────────────────────────────────────────────────
 if ($action === 'delete' && $id) {
-    $s = $conn->prepare('SELECT product_name,image FROM products WHERE id=?');
-    $s->bind_param('i',$id); $s->execute();
+
+    // Get product info
+    $s = $conn->prepare("SELECT product_name, image FROM products WHERE id = ?");
+    $s->bind_param("i", $id);
+    $s->execute();
+
     $row = $s->get_result()->fetch_assoc();
+
     if ($row) {
-        if ($row['image'] && file_exists($row['image'])) @unlink($row['image']);
-        $conn->prepare('DELETE FROM products WHERE id=?')->bind_param('i',$id);
-        $conn->prepare('DELETE FROM products WHERE id=?')->execute(); // safe re-prepare
-        $d = $conn->prepare('DELETE FROM products WHERE id=?');
-        $d->bind_param('i',$id); $d->execute();
-        $msg = urlencode("🗑 «{$row['product_name']}» deleted.");
-        header("Location: products.php?flash=success&msg=$msg"); exit;
+
+        // Delete image file
+        if (!empty($row['image']) && file_exists($row['image'])) {
+            unlink($row['image']);
+        }
+
+        // Delete product
+        $d = $conn->prepare("DELETE FROM products WHERE id = ?");
+        $d->bind_param("i", $id);
+
+        if ($d->execute()) {
+
+            $msg = urlencode("🗑 {$row['product_name']} deleted.");
+            header("Location: products.php?flash=success&msg=$msg");
+            exit;
+
+        } else {
+
+            $msg = urlencode("Delete failed.");
+            header("Location: products.php?flash=error&msg=$msg");
+            exit;
+        }
     }
-    header('Location: products.php'); exit;
+
+    header("Location: products.php");
+    exit;
 }
 
 // ── LIST ──────────────────────────────────────────────────────

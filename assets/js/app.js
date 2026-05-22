@@ -1,4 +1,4 @@
-let cart = {}; // { id: { name, price, qty, stock } }
+let cart = {}; // { id: { name, price, qty, stock, image } }
 
 /* ── Add to Cart ─────────────────────────────────────────────── */
 function addToCart(btn) {
@@ -8,14 +8,16 @@ function addToCart(btn) {
   const name  = card.dataset.name;
   const price = parseFloat(card.dataset.price);
   const stock = parseInt(card.dataset.stock);
+  const image = card.dataset.image; // ✅ added
 
   if (!cart[id]) {
     cart[id] = {
-      id: id,
-      name: name,
-      price: price,
+      id,
+      name,
+      price,
       qty: 1,
-      stock: stock
+      stock,
+      image
     };
   } else {
     if (cart[id].qty < stock) {
@@ -33,18 +35,13 @@ function addToCart(btn) {
 function changeQty(id, delta) {
   if (!cart[id]) return;
 
-  cart[id].qty += delta;
+  cart[id].qty < stock;
 
-  if (cart[id].qty <= 0) {
-    delete cart[id];
-  }
+  if (cart[id].qty <= 0) delete cart[id];
 
   renderCart();
 }
-function removeItem(id) {
-  delete cart[id];
-  renderCart();
-}
+
 /* ── Clear Cart ──────────────────────────────────────────────── */
 function clearCart() {
   cart = {};
@@ -76,21 +73,29 @@ function renderCart() {
     const item = cart[id];
 
     html += `
-      <div class="cart-item">
-        <div style="flex:1; min-width:0">
-          <div class="ci-name">${escHtml(item.name)}</div>
-          <div class="ci-price">
-            ₱${fmt(item.price)} × ${item.qty} = ₱${fmt(item.price * item.qty)}
-          </div>
-        </div>
+  <div class="cart-item">
+    <div style="display:flex; gap:10px; align-items:center; flex:1; min-width:0">
+      
+      <img src="${item.image}" width="50" height="50"
+           style="object-fit:cover; border-radius:8px;">
 
-        <div class="qty-controls">
-          <button class="qty-btn" onclick="changeQty('${id}', -1)">−</button>
-          <span class="qty-val">${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty('${id}', 1)" ${item.qty >= item.stock ? 'disabled' : ''}>+</button>
+      <div>
+        <div class="ci-name">${escHtml(item.name)}</div>
+        <div class="ci-price">
+          ₱${fmt(item.price)} × ${item.qty} = ₱${fmt(item.price * item.qty)}
         </div>
       </div>
-    `;
+
+    </div>
+
+    <div class="qty-controls">
+      <button class="qty-btn" onclick="changeQty('${id}', -1)">−</button>
+      <span class="qty-val">${item.qty}</span>
+      <button class="qty-btn" onclick="changeQty('${id}', 1)"
+        ${item.qty >= item.stock ? 'disabled' : ''}>+</button>
+    </div>
+  </div>
+`;
   });
 
   container.innerHTML = html;

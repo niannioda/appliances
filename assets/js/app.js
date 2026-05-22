@@ -1,5 +1,29 @@
 let cart = {}; // { id: { name, price, qty, stock, image } }
 
+/* ── Product Search ─────────────────────────────────────────── */
+const searchInput = document.getElementById('searchInput');
+const products = document.querySelectorAll('.product-card');
+
+searchInput.addEventListener('keyup', function () {
+
+  let searchValue = this.value.toLowerCase();
+
+  products.forEach(product => {
+
+    let productName = product.querySelector('.product-name')
+      .textContent
+      .toLowerCase();
+
+    if (productName.includes(searchValue)) {
+      product.style.display = 'block';
+    } else {
+      product.style.display = 'none';
+    }
+
+  });
+
+});
+
 /* ── Add to Cart ─────────────────────────────────────────────── */
 function addToCart(btn) {
   const card = btn.closest('.product-card');
@@ -8,7 +32,7 @@ function addToCart(btn) {
   const name  = card.dataset.name;
   const price = parseFloat(card.dataset.price);
   const stock = parseInt(card.dataset.stock);
-  const image = card.dataset.image; // ✅ added
+  const image = card.dataset.image;
 
   if (!cart[id]) {
     cart[id] = {
@@ -35,7 +59,7 @@ function addToCart(btn) {
 function changeQty(id, delta) {
   if (!cart[id]) return;
 
-  cart[id].qty < stock;
+  cart[id].qty += delta;
 
   if (cart[id].qty <= 0) delete cart[id];
 
@@ -73,34 +97,39 @@ function renderCart() {
     const item = cart[id];
 
     html += `
-  <div class="cart-item">
-    <div style="display:flex; gap:10px; align-items:center; flex:1; min-width:0">
-      
-      <img src="${item.image}" width="50" height="50"
-           style="object-fit:cover; border-radius:8px;">
+    <div class="cart-item">
+      <div style="display:flex; gap:10px; align-items:center; flex:1; min-width:0">
 
-      <div>
-        <div class="ci-name">${escHtml(item.name)}</div>
-        <div class="ci-price">
-          ₱${fmt(item.price)} × ${item.qty} = ₱${fmt(item.price * item.qty)}
+        <img src="${item.image}" width="50" height="50"
+             style="object-fit:cover; border-radius:8px;">
+
+        <div>
+          <div class="ci-name">${escHtml(item.name)}</div>
+          <div class="ci-price">
+            ₱${fmt(item.price)} × ${item.qty} = ₱${fmt(item.price * item.qty)}
+          </div>
         </div>
+
       </div>
 
-    </div>
+      <div class="qty-controls">
+        <button class="qty-btn" onclick="changeQty('${id}', -1)">−</button>
+        <span class="qty-val">${item.qty}</span>
 
-    <div class="qty-controls">
-      <button class="qty-btn" onclick="changeQty('${id}', -1)">−</button>
-      <span class="qty-val">${item.qty}</span>
-      <button class="qty-btn" onclick="changeQty('${id}', 1)"
-        ${item.qty >= item.stock ? 'disabled' : ''}>+</button>
+        <button class="qty-btn"
+          onclick="changeQty('${id}', 1)"
+          ${item.qty >= item.stock ? 'disabled' : ''}>
+          +
+        </button>
+      </div>
     </div>
-  </div>
-`;
+    `;
   });
 
   container.innerHTML = html;
 
   const totalItems = ids.reduce((s, id) => s + cart[id].qty, 0);
+
   document.getElementById('cartCount').textContent = totalItems;
   document.getElementById('payBtn').disabled = false;
 
@@ -118,10 +147,10 @@ function recalc() {
 
   document.getElementById('subtotal').textContent = '₱' + fmt(subtotal);
   document.getElementById('vatAmount').textContent = '₱' + fmt(vatAmt);
-  document.getElementById('total').textContent     = '₱' + fmt(total);
+  document.getElementById('total').textContent = '₱' + fmt(total);
 }
 
-/* ── Payment Flow ────────────────────────────────────────────── tewateraterteaoiea0te00e*/
+/* ── Payment Flow ────────────────────────────────────────────── */
 function proceedPayment() {
   const totalText = document.getElementById('total').textContent;
 
@@ -135,7 +164,12 @@ function proceedPayment() {
 
 function calcChange() {
   const cash = parseFloat(document.getElementById('cashInput').value) || 0;
-  const total = parseFloat(document.getElementById('total').textContent.replace(/[₱,]/g, '')) || 0;
+
+  const total = parseFloat(
+    document.getElementById('total')
+      .textContent
+      .replace(/[₱,]/g, '')
+  ) || 0;
 
   const change = cash - total;
 
@@ -143,17 +177,22 @@ function calcChange() {
   const btn  = document.getElementById('confirmPayBtn');
 
   if (cash >= total && total > 0) {
+
     disp.style.display = 'flex';
     document.getElementById('changeAmt').textContent = '₱' + fmt(change);
+
     btn.disabled = false;
+
   } else {
+
     disp.style.display = 'none';
     btn.disabled = true;
   }
 }
 
-/* ── FINAL FIXED CONFIRM PAYMENT (IMPORTANT) ─────────────────── */
+/* ── Confirm Payment ─────────────────────────────────────────── */
 function confirmPayment() {
+
   if (Object.keys(cart).length === 0) return;
 
   fetch("process_order.php", {
@@ -163,27 +202,34 @@ function confirmPayment() {
     },
     body: "cart=" + encodeURIComponent(JSON.stringify(cart))
   })
+
   .then(res => res.json())
+
   .then(data => {
+
     if (data.status === "success") {
 
-      // Close payment modal
-      const payModal = bootstrap.Modal.getInstance(document.getElementById('payModal'));
+      const payModal = bootstrap.Modal.getInstance(
+        document.getElementById('payModal')
+      );
+
       if (payModal) payModal.hide();
 
-      // Show success modal
-      const modal = new bootstrap.Modal(document.getElementById('successModal'));
+      const modal = new bootstrap.Modal(
+        document.getElementById('successModal')
+      );
+
       modal.show();
 
-      // Reset cart
       clearCart();
 
-      // Refresh stock display
       setTimeout(() => location.reload(), 1000);
 
     } else {
+
       showToast("Error processing order", "warning");
     }
+
   });
 }
 
@@ -204,16 +250,25 @@ function escHtml(str) {
 }
 
 function showToast(msg, type='info') {
+
   const t = document.createElement('div');
+
   t.textContent = msg;
+
   t.style.cssText = `
-    position:fixed;bottom:20px;left:50%;
+    position:fixed;
+    bottom:20px;
+    left:50%;
     transform:translateX(-50%);
-    background:${type==='warning'?'#d97706':'#2563eb'};
-    color:#fff;padding:10px 20px;
-    border-radius:8px;font-size:13px;
+    background:${type==='warning' ? '#d97706' : '#2563eb'};
+    color:#fff;
+    padding:10px 20px;
+    border-radius:8px;
+    font-size:13px;
     z-index:9999;
   `;
+
   document.body.appendChild(t);
+
   setTimeout(() => t.remove(), 2000);
 }

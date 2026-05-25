@@ -7,11 +7,18 @@ if(isset($_POST['submit'])){
     $stock = $_POST['stock'];
     $category = $_POST['categories'];
 
-    $sql = "INSERT INTO products (product_name, price, stock, categories)
-            VALUES (?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sdis", $name, $price, $stock, $category);
-    $stmt->execute();
+    $stmt = $conn->prepare("
+    INSERT INTO products (product_name, category, price, stock, image)
+    VALUES (?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+        stock = stock + VALUES(stock),
+        price = VALUES(price),
+        category = VALUES(category),
+        image = VALUES(image)
+");
+
+$stmt->bind_param("ssdss", $product_name, $category, $price, $stock, $image);
+$stmt->execute();
 
     header("Location: index.php?flash=success&msg=Product added!");
     exit;

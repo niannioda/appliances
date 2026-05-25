@@ -8,6 +8,7 @@ let cart = {};
    ADD TO CART
 ========================================================= */
 
+/* ── Add to Cart ───────────────────────── */
 function addToCart(btn) {
 
   const card = btn.closest('.product-card');
@@ -18,36 +19,29 @@ function addToCart(btn) {
   const stock = parseInt(card.dataset.stock);
   const image = card.dataset.image;
 
-  // SAME PRODUCT = INCREASE QTY
-  if (cart[id]) {
+  if (!cart[id]) {
 
-    if (cart[id].qty < stock) {
-
-      cart[id].qty++;
-
-    } else {
-
-      showToast("Stock limit reached!", "warning");
-      return;
-
-    }
-
-  } else {
-
-    // NEW PRODUCT
     cart[id] = {
-
       id,
       name,
       price,
+      qty: 1,
       stock,
-      image,
-      qty: 1
-
+      image
     };
+
+  } else {
+
+    if (cart[id].qty < stock) {
+      cart[id].qty++;
+    } else {
+      showToast("Not enough stock!", "warning");
+      return;
+    }
 
   }
 
+  // IMPORTANT
   renderCart();
 }
 
@@ -55,41 +49,18 @@ function addToCart(btn) {
    CHANGE QUANTITY
 ========================================================= */
 
+/* ── Change Quantity ───────────────────── */
 function changeQty(id, delta) {
 
   if (!cart[id]) return;
 
-  // increase
-  if (delta === 1) {
+  cart[id].qty += delta;
 
-    if (cart[id].qty < cart[id].stock) {
-
-      cart[id].qty++;
-
-    } else {
-
-      showToast("Stock limit reached!", "warning");
-      return;
-
-    }
-
+  if (cart[id].qty <= 0) {
+    delete cart[id];
   }
 
-  // decrease
-  if (delta === -1) {
-
-    cart[id].qty--;
-
-    // remove if zero
-    if (cart[id].qty <= 0) {
-
-      delete cart[id];
-
-    }
-
-  }
-
-  // refresh cart instantly
+  // IMPORTANT
   renderCart();
 }
 
@@ -489,3 +460,5 @@ function showToast(msg, type='info') {
 
   setTimeout(() => t.remove(), 2000);
 }
+// INITIAL LOAD
+renderCart();

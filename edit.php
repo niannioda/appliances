@@ -9,15 +9,17 @@ if (!isset($_GET['id'])) {
 $id = (int)$_GET['id'];
 
 // Fetch product
-$stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
-$stmt->bind_param("i", $id);
+$stmt = $conn->prepare("SELECT id FROM products WHERE product_name = ?");
+$stmt->bind_param("s", $name);
 $stmt->execute();
-$product = $stmt->get_result()->fetch_assoc();
+$stmt->store_result();
 
-if (!$product) {
-    header("Location: index.php?flash=danger&msg=Product not found");
+if ($stmt->num_rows > 0) {
+    $msg = urlencode("⚠️ Product already exists!");
+    header("Location: products.php?flash=error&msg=$msg");
     exit;
 }
+
 
 // Update
 if (isset($_POST['update'])) {

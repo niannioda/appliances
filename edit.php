@@ -9,7 +9,7 @@ if (!isset($_GET['id'])) {
 $id = (int)$_GET['id'];
 
 // Fetch product
-$stmt = $conn->prepare("SELECT product_name FROM products");
+$stmt = $conn->prepare("SELECT id FROM products WHERE product_name = ?");
 $stmt->bind_param("s", $name);
 $stmt->execute();
 $stmt->store_result();

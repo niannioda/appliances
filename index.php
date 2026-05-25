@@ -125,157 +125,268 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
 </div>
 <?php endif; ?>
 
-<!-- ── MAIN LAYOUT ── -->
+<!-- ───────────────── MAIN POS LAYOUT ───────────────── -->
 <div class="pos-layout">
 
-  <!-- LEFT: Product Grid -->
-  <div class="products-area">
-    <div class="products-header">
-      <span class="results-label" id="resultsLabel"><?= count($products) ?> product<?= count($products) !== 1 ? 's' : '' ?></span>
-    </div>
+    <!-- ================= LEFT SIDE ================= -->
+    <section class="products-area">
 
-    <div class="products-grid" id="productsGrid">
-      <?php if (empty($products)): ?>
-        <div class="empty-state">
-          <i class="bi bi-box-seam"></i>
-          <p>No products found.</p>
-          <a href="products.php?action=add" class="btn btn-primary btn-sm">Add Product</a>
+        <!-- TOP HEADER -->
+        <div class="products-header">
+
+            <div>
+                <h4 class="mb-0 fw-bold">Available Appliances</h4>
+
+                <small class="text-muted">
+                    <span id="resultsLabel">
+                        <?= count($products) ?>
+                    </span>
+                    product<?= count($products) !== 1 ? 's' : '' ?>
+                </small>
+            </div>
+
         </div>
-      <?php endif; ?>
 
-      <!-- ================= PRODUCT CARD ================= -->
-<?php foreach ($products as $p):
+        <!-- PRODUCTS GRID -->
+        <div class="products-grid" id="productsGrid">
 
-$imgSrc = $p['image'] && file_exists($p['image'])
-  ? htmlspecialchars($p['image'])
-  : 'assets/img/no-image.png';
+            <!-- EMPTY -->
+            <?php if (empty($products)): ?>
 
-$outOfStock = $p['stock'] <= 0;
+                <div class="empty-state">
 
-?>
+                    <i class="bi bi-box-seam"></i>
 
-<div class="product-card <?= $outOfStock ? 'out-of-stock' : '' ?>"
+                    <h5>No Products Available</h5>
 
-     data-id="<?= $p['id'] ?>"
-     data-name="<?= htmlspecialchars($p['product_name'], ENT_QUOTES) ?>"
-     data-price="<?= $p['price'] ?>"
-     data-stock="<?= $p['stock'] ?>"
-     data-image="<?= $imgSrc ?>"
-     data-cat="<?= htmlspecialchars($p['categories']) ?>">
+                    <p>Add your first appliance product.</p>
 
-    <!-- IMAGE -->
-    <div class="card-img-wrap">
+                    <a href="create.php"
+                       class="btn btn-primary">
 
-        <img src="<?= $imgSrc ?>"
-             alt="<?= htmlspecialchars($p['product_name']) ?>">
+                        <i class="bi bi-plus-circle"></i>
+                        Add Product
 
-        <!-- STOCK -->
-        <div class="stock-badge">
+                    </a>
 
-            <?=
-            $outOfStock
-            ? 'Out of Stock'
-            : 'Stock: ' . $p['stock']
+                </div>
+
+            <?php endif; ?>
+
+            <!-- PRODUCTS -->
+            <?php foreach ($products as $p):
+
+                $imgSrc = $p['image'] && file_exists($p['image'])
+                    ? htmlspecialchars($p['image'])
+                    : 'assets/img/no-image.png';
+
+                $outOfStock = $p['stock'] <= 0;
+
             ?>
 
+            <!-- PRODUCT CARD -->
+            <div class="product-card <?= $outOfStock ? 'out-of-stock' : '' ?>"
+
+                 data-id="<?= $p['id'] ?>"
+                 data-name="<?= htmlspecialchars($p['product_name'], ENT_QUOTES) ?>"
+                 data-price="<?= $p['price'] ?>"
+                 data-stock="<?= $p['stock'] ?>"
+                 data-image="<?= $imgSrc ?>"
+                 data-cat="<?= htmlspecialchars($p['categories']) ?>">
+
+                <!-- IMAGE -->
+                <div class="card-img-wrap">
+
+                    <img src="<?= $imgSrc ?>"
+                         alt="<?= htmlspecialchars($p['product_name']) ?>">
+
+                    <!-- STOCK BADGE -->
+                    <div class="stock-badge
+                        <?= $outOfStock
+                            ? 'badge-out'
+                            : ($p['stock'] <= 5
+                                ? 'badge-low'
+                                : 'badge-ok')
+                        ?>">
+
+                        <?= $outOfStock
+                            ? 'Out of Stock'
+                            : 'Stock: ' . $p['stock']
+                        ?>
+
+                    </div>
+
+                </div>
+
+                <!-- BODY -->
+                <div class="card-body-custom">
+
+                    <!-- CATEGORY -->
+                    <div class="cat-tag">
+                        <?= htmlspecialchars($p['categories']) ?>
+                    </div>
+
+                    <!-- NAME -->
+                    <h5 class="product-name">
+                        <?= htmlspecialchars($p['product_name']) ?>
+                    </h5>
+
+                    <!-- PRICE -->
+                    <div class="price">
+                        ₱<?= number_format($p['price'], 2) ?>
+                    </div>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="product-actions">
+
+                        <!-- EDIT -->
+                        <a href="edit.php?id=<?= $p['id'] ?>"
+                           class="btn btn-warning btn-sm">
+
+                            <i class="bi bi-pencil"></i>
+
+                        </a>
+
+                        <!-- DELETE -->
+                        <a href="delete.php?id=<?= $p['id'] ?>"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('Delete this appliance?')">
+
+                            <i class="bi bi-trash"></i>
+
+                        </a>
+
+                        <!-- ADD TO CART -->
+                        <button class="btn btn-primary btn-sm ms-auto"
+
+                                <?= $outOfStock ? 'disabled' : '' ?>
+
+                                onclick="addToCart(this)">
+
+                            <i class="bi bi-cart-plus"></i>
+                            Add
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <?php endforeach; ?>
+
         </div>
 
-    </div>
+    </section>
 
-    <!-- BODY -->
-    <div class="card-body-custom">
+    <!-- ================= RIGHT SIDE ================= -->
+    <aside class="order-panel">
 
-        <div class="cat-tag">
-            <?= htmlspecialchars($p['categories']) ?>
-        </div>
+        <!-- ORDER HEADER -->
+        <div class="order-header">
 
-        <h6 class="product-name">
-            <?= htmlspecialchars($p['product_name']) ?>
-        </h6>
+            <h5 class="mb-0">
+                <i class="bi bi-receipt"></i>
+                Order Summary
+            </h5>
 
-        <div class="price-row">
+            <!-- CLEAR -->
+            <button class="btn btn-outline-danger btn-sm"
+                    onclick="clearCart()">
 
-            <!-- EDIT -->
-            <a href="edit.php?id=<?= $p['id'] ?>"
-               class="btn btn-warning btn-sm">
-                <i class="bi bi-pencil"></i>
-            </a>
-
-            <!-- DELETE -->
-            <a href="delete.php?id=<?= $p['id'] ?>"
-               class="btn btn-danger btn-sm"
-               onclick="return confirm('Delete this product?')">
-
-                <i class="bi bi-trash"></i>
-
-            </a>
-
-            <!-- PRICE -->
-            <span class="price">
-                ₱<?= number_format($p['price'], 2) ?>
-            </span>
-
-            <!-- ADD TO CART -->
-            <button class="add-btn add-to-cart"
-
-                    <?= $outOfStock ? 'disabled' : '' ?>
-
-                    onclick="addToCart(this)">
-
-                <i class="bi bi-plus-lg"></i>
+                <i class="bi bi-trash3"></i>
 
             </button>
 
         </div>
 
-    </div>
+        <!-- CART ITEMS -->
+        <div class="order-items" id="orderItems">
 
-</div>
+            <!-- EMPTY CART -->
+            <div class="cart-empty" id="cartEmpty">
 
-<?php endforeach; ?>
-    </div>
-  </div>
+                <i class="bi bi-cart-x"></i>
 
-  <!-- RIGHT: Order Summary -->
-  <aside class="order-panel">
-    <div class="order-header">
-      <i class="bi bi-receipt"></i> Order Summary
-      <button class="btn btn-outline-danger btn-sm ms-auto" id="clearCartBtn" onclick="clearCart()">
-        <i class="bi bi-trash3"></i>
-      </button>
-    </div>
+                <h6>No appliances added</h6>
 
-    <div class="order-items" id="orderItems">
-      <div class="cart-empty" id="cartEmpty">
-        <i class="bi bi-cart-x"></i>
-        <p>No items yet</p>
-        <small>Click + on a product to add</small>
-      </div>
-    </div>
+                <small>
+                    Click the Add button to order appliances
+                </small>
 
-    <div class="order-footer">
-      <div class="summary-row">
-        <span>Subtotal</span>
-        <span id="subtotal">₱0.00</span>
-      </div>
-      <div class="summary-row vat-row">
-        <span>
-          VAT (12%)
-          <label class="vat-toggle ms-1">
-            <input type="checkbox" id="vatToggle" onchange="recalc()"> <span class="vat-label">Include</span>
-          </label>
-        </span>
-        <span id="vatAmount">₱0.00</span>
-      </div>
-      <div class="summary-row total-row">
-        <span>Total</span>
-        <span id="total">₱0.00</span>
-      </div>
-      <button class="btn btn-pay w-100" id="payBtn" onclick="proceedPayment()" disabled>
-        <i class="bi bi-cash-coin"></i> Proceed to Payment
-      </button>
-    </div>
-  </aside>
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="order-footer">
+
+            <!-- SUBTOTAL -->
+            <div class="summary-row">
+
+                <span>Subtotal</span>
+
+                <strong id="subtotal">
+                    ₱0.00
+                </strong>
+
+            </div>
+
+            <!-- VAT -->
+            <div class="summary-row">
+
+                <span>
+
+                    VAT (12%)
+
+                    <label class="ms-2">
+
+                        <input type="checkbox"
+                               id="vatToggle"
+                               onchange="recalc()">
+
+                        Include
+
+                    </label>
+
+                </span>
+
+                <strong id="vatAmount">
+                    ₱0.00
+                </strong>
+
+            </div>
+
+            <!-- TOTAL -->
+            <div class="summary-row total-row">
+
+                <span>Total</span>
+
+                <strong id="total">
+                    ₱0.00
+                </strong>
+
+            </div>
+
+            <!-- PAY -->
+            <button class="btn btn-success w-100 btn-lg"
+
+                    id="payBtn"
+
+                    onclick="proceedPayment()"
+
+                    disabled>
+
+                <i class="bi bi-cash-stack"></i>
+
+                Proceed to Payment
+
+            </button>
+
+        </div>
+
+    </aside>
 
 </div>
 

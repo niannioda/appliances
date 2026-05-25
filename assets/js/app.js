@@ -1,6 +1,5 @@
 let cart = {};
 
-<script src="assets/js/app.js"></script>
 /* ───────────────── ADD TO CART ───────────────── */
 function addToCart(btn) {
 

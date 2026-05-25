@@ -102,181 +102,93 @@ function renderCart() {
 
   const container = document.getElementById('orderItems');
 
-  let html = '';
-
-  let subtotal = 0;
-
   const ids = Object.keys(cart);
 
-  // EMPTY
+  // EMPTY CART
   if (ids.length === 0) {
 
     container.innerHTML = `
-
       <div class="cart-empty" id="cartEmpty">
-
         <i class="bi bi-cart-x"></i>
-
         <p>No items yet</p>
-
         <small>Click + on a product to add</small>
-
       </div>
-
     `;
 
-    document.getElementById('subtotal').textContent = '₱0.00';
-    document.getElementById('vatAmount').textContent = '₱0.00';
-    document.getElementById('total').textContent = '₱0.00';
     document.getElementById('cartCount').textContent = '0';
+
+    document.getElementById('payBtn').disabled = true;
+
+    recalc();
 
     return;
   }
 
-  // PRODUCTS
+  let html = '';
+
   ids.forEach(id => {
 
     const item = cart[id];
 
-    subtotal += item.price * item.qty;
-
     html += `
+      <div class="cart-item">
 
-      <div class="cart-item"
-           style="
-             display:flex;
-             align-items:center;
-             gap:10px;
-             margin-bottom:15px;
-             border-bottom:1px solid #eee;
-             padding-bottom:10px;
-           ">
+        <div style="display:flex; gap:10px; align-items:center; flex:1;">
 
-          <!-- IMAGE -->
           <img src="${item.image}"
+               width="50"
+               height="50"
+               style="object-fit:cover; border-radius:8px;">
 
-               width="55"
-               height="55"
+          <div>
 
-               style="
-                 object-fit:cover;
-                 border-radius:8px;
-               ">
+            <div class="ci-name">
+              ${escHtml(item.name)}
+            </div>
 
-          <!-- INFO -->
-          <div style="flex:1">
-
-              <div class="ci-name">
-
-                ${escHtml(item.name)}
-
-              </div>
-
-              <div class="ci-price">
-
-                ₱${fmt(item.price)}
-                ×
-                ${item.qty}
-
-                =
-                ₱${fmt(item.price * item.qty)}
-
-              </div>
+            <div class="ci-price">
+              ₱${fmt(item.price)} × ${item.qty}
+            </div>
 
           </div>
 
-          <!-- QUANTITY -->
-          <div class="qty-controls"
-               style="
-                 display:flex;
-                 align-items:center;
-                 gap:5px;
-               ">
+        </div>
 
-              <button class="remove-btn"
-        onclick="removeItem('${id}')">
+        <div class="qty-controls">
 
-   ×
-
-</button>
-
-              <span class="qty-val">
-
-                ${item.qty}
-
-              </span>
-
-              <button class="qty-btn"
-
-                      onclick="changeQty('${id}','plus')"
-
-                      ${item.qty >= item.stock ? 'disabled' : ''}>
-
-                  +
-
-              </button>
-
-          </div>
-
-          <!-- REMOVE -->
-          <button onclick="removeItem('${id}')"
-
-                  style="
-                    background:red;
-                    color:white;
-                    border:none;
-                    width:28px;
-                    height:28px;
-                    border-radius:6px;
-                    cursor:pointer;
-                  ">
-
-            ×
-
+          <button class="qty-btn"
+                  onclick="changeQty('${id}', -1)">
+            −
           </button>
 
-      </div>
+          <span class="qty-val">
+            ${item.qty}
+          </span>
 
+          <button class="qty-btn"
+                  onclick="changeQty('${id}', 1)">
+            +
+          </button>
+
+        </div>
+
+      </div>
     `;
+
   });
 
   container.innerHTML = html;
 
-  /* ================= VAT ================= */
-
-  const vatEnabled =
-    document.getElementById('vatToggle')?.checked;
-
-  const vat =
-    vatEnabled ? subtotal * 0.12 : 0;
-
-  const total =
-    subtotal + vat;
-
-  /* ================= UPDATE UI ================= */
-
-  document.getElementById('subtotal').textContent =
-    '₱' + fmt(subtotal);
-
-  document.getElementById('vatAmount').textContent =
-    '₱' + fmt(vat);
-
-  document.getElementById('total').textContent =
-    '₱' + fmt(total);
-
-  /* ================= CART COUNT ================= */
-
-  const totalQty =
-    ids.reduce((sum, id) => {
-
-      return sum + cart[id].qty;
-
-    }, 0);
+  const totalItems =
+    ids.reduce((s, id) => s + cart[id].qty, 0);
 
   document.getElementById('cartCount').textContent =
-    totalQty;
-}
+    totalItems;
 
+  document.getElementById('payBtn').disabled = false;
+
+  recalc();
+}
 /* =========================================================
    PAYMENT
 ========================================================= */

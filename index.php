@@ -288,17 +288,61 @@ $outOfStock = $p['stock'] <= 0;
 
   const pills = document.querySelectorAll('.cat-pill');
 
+  const allCards = () =>
+    document.querySelectorAll('#productsGrid .product-card');
+
+  const resultsLabel =
+    document.getElementById('resultsLabel');
+
+  function applyCategory(selectedCat) {
+
+    let visible = 0;
+
+    allCards().forEach(card => {
+
+      const match =
+        selectedCat === 'All' ||
+        card.dataset.cat === selectedCat;
+
+      card.style.display = match ? '' : 'none';
+
+      if (match) visible++;
+
+    });
+
+    if (resultsLabel) {
+
+      resultsLabel.textContent =
+        visible + ' product' + (visible !== 1 ? 's' : '');
+
+    }
+
+  }
+
   pills.forEach(pill => {
 
     pill.addEventListener('click', function () {
 
-      pills.forEach(p => p.classList.remove('active'));
+      pills.forEach(p =>
+        p.classList.remove('active')
+      );
 
       this.classList.add('active');
+
+      applyCategory(this.dataset.cat);
 
     });
 
   });
+
+  const activePill =
+    document.querySelector('.cat-pill.active');
+
+  if (activePill) {
+
+    applyCategory(activePill.dataset.cat);
+
+  }
 
 })();
 </script>

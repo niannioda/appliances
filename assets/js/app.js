@@ -1,6 +1,13 @@
+/* =========================================================
+   CART SYSTEM
+========================================================= */
+
 let cart = {};
 
-/* ───────────────── ADD TO CART ───────────────── */
+/* =========================================================
+   ADD TO CART
+========================================================= */
+
 function addToCart(btn) {
 
   const card = btn.closest('.product-card');
@@ -11,26 +18,32 @@ function addToCart(btn) {
   const stock = parseInt(card.dataset.stock);
   const image = card.dataset.image;
 
-  // If product already exists → increase qty
+  // SAME PRODUCT = INCREASE QTY
   if (cart[id]) {
 
     if (cart[id].qty < stock) {
+
       cart[id].qty++;
+
     } else {
+
       showToast("Stock limit reached!", "warning");
       return;
+
     }
 
   } else {
 
-    // Add new product
+    // NEW PRODUCT
     cart[id] = {
+
       id,
       name,
       price,
       stock,
       image,
       qty: 1
+
     };
 
   }
@@ -38,29 +51,39 @@ function addToCart(btn) {
   renderCart();
 }
 
-/* ───────────────── CHANGE QTY ───────────────── */
+/* =========================================================
+   CHANGE QUANTITY
+========================================================= */
+
 function changeQty(id, action) {
 
   if (!cart[id]) return;
 
+  // PLUS
   if (action === 'plus') {
 
     if (cart[id].qty < cart[id].stock) {
+
       cart[id].qty++;
+
     } else {
+
       showToast("No more stock available!", "warning");
       return;
+
     }
 
   }
 
+  // MINUS
   if (action === 'minus') {
 
     cart[id].qty--;
 
-    // remove item if qty = 0
     if (cart[id].qty <= 0) {
+
       delete cart[id];
+
     }
 
   }
@@ -68,7 +91,10 @@ function changeQty(id, action) {
   renderCart();
 }
 
-/* ───────────────── REMOVE ITEM ───────────────── */
+/* =========================================================
+   REMOVE ITEM
+========================================================= */
+
 function removeItem(id) {
 
   delete cart[id];
@@ -76,7 +102,10 @@ function removeItem(id) {
   renderCart();
 }
 
-/* ───────────────── CLEAR CART ───────────────── */
+/* =========================================================
+   CLEAR CART
+========================================================= */
+
 function clearCart() {
 
   cart = {};
@@ -84,10 +113,13 @@ function clearCart() {
   renderCart();
 }
 
-/* ───────────────── RENDER CART ───────────────── */
+/* =========================================================
+   RENDER CART
+========================================================= */
+
 function renderCart() {
 
-  const orderItems = document.getElementById('orderItems');
+  const container = document.getElementById('orderItems');
 
   let html = '';
 
@@ -95,22 +127,32 @@ function renderCart() {
 
   const ids = Object.keys(cart);
 
-  // Empty cart
+  // EMPTY
   if (ids.length === 0) {
 
-    orderItems.innerHTML = `
-      <div id="cartEmpty" style="padding:20px; text-align:center; color:#777;">
-        No items yet
+    container.innerHTML = `
+
+      <div class="cart-empty" id="cartEmpty">
+
+        <i class="bi bi-cart-x"></i>
+
+        <p>No items yet</p>
+
+        <small>Click + on a product to add</small>
+
       </div>
+
     `;
 
     document.getElementById('subtotal').textContent = '₱0.00';
+    document.getElementById('vatAmount').textContent = '₱0.00';
     document.getElementById('total').textContent = '₱0.00';
     document.getElementById('cartCount').textContent = '0';
 
     return;
   }
 
+  // PRODUCTS
   ids.forEach(id => {
 
     const item = cart[id];
@@ -118,110 +160,121 @@ function renderCart() {
     subtotal += item.price * item.qty;
 
     html += `
+
       <div class="cart-item"
-        style="
-          display:flex;
-          align-items:center;
-          gap:10px;
-          margin-bottom:15px;
-          border-bottom:1px solid #eee;
-          padding-bottom:10px;
-        ">
+           style="
+             display:flex;
+             align-items:center;
+             gap:10px;
+             margin-bottom:15px;
+             border-bottom:1px solid #eee;
+             padding-bottom:10px;
+           ">
 
-        <!-- PRODUCT IMAGE -->
-        <img src="${item.image}"
-          width="55"
-          height="55"
-          style="
-            object-fit:cover;
-            border-radius:8px;
-          ">
+          <!-- IMAGE -->
+          <img src="${item.image}"
 
-        <!-- PRODUCT INFO -->
-        <div style="flex:1; min-width:0;">
+               width="55"
+               height="55"
 
-          <div style="
-            font-weight:600;
-            font-size:14px;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-          ">
-            ${item.name}
+               style="
+                 object-fit:cover;
+                 border-radius:8px;
+               ">
+
+          <!-- INFO -->
+          <div style="flex:1">
+
+              <div class="ci-name">
+
+                ${escHtml(item.name)}
+
+              </div>
+
+              <div class="ci-price">
+
+                ₱${fmt(item.price)}
+                ×
+                ${item.qty}
+
+                =
+                ₱${fmt(item.price * item.qty)}
+
+              </div>
+
           </div>
 
-          <div style="
-            font-size:13px;
-            color:#666;
-          ">
-            ₱${fmt(item.price)} × ${item.qty}
-            =
-            ₱${fmt(item.price * item.qty)}
+          <!-- QUANTITY -->
+          <div class="qty-controls"
+               style="
+                 display:flex;
+                 align-items:center;
+                 gap:5px;
+               ">
+
+              <button class="qty-btn"
+
+                      onclick="changeQty('${id}','minus')">
+
+                  −
+
+              </button>
+
+              <span class="qty-val">
+
+                ${item.qty}
+
+              </span>
+
+              <button class="qty-btn"
+
+                      onclick="changeQty('${id}','plus')"
+
+                      ${item.qty >= item.stock ? 'disabled' : ''}>
+
+                  +
+
+              </button>
+
           </div>
 
-        </div>
+          <!-- REMOVE -->
+          <button onclick="removeItem('${id}')"
 
-        <!-- QTY CONTROLS -->
-        <div style="
-          display:flex;
-          align-items:center;
-          gap:5px;
-        ">
+                  style="
+                    background:red;
+                    color:white;
+                    border:none;
+                    width:28px;
+                    height:28px;
+                    border-radius:6px;
+                    cursor:pointer;
+                  ">
 
-          <button onclick="changeQty('${id}','minus')"
-            style="
-              width:28px;
-              height:28px;
-              border:none;
-              border-radius:6px;
-              cursor:pointer;
-            ">
-            −
+            ×
+
           </button>
-
-          <span>${item.qty}</span>
-
-          <button onclick="changeQty('${id}','plus')"
-            style="
-              width:28px;
-              height:28px;
-              border:none;
-              border-radius:6px;
-              cursor:pointer;
-            ">
-            +
-          </button>
-
-        </div>
-
-        <!-- REMOVE BUTTON -->
-        <button onclick="removeItem('${id}')"
-          style="
-            border:none;
-            background:red;
-            color:white;
-            width:28px;
-            height:28px;
-            border-radius:6px;
-            cursor:pointer;
-          ">
-          ×
-        </button>
 
       </div>
+
     `;
   });
 
-  orderItems.innerHTML = html;
+  container.innerHTML = html;
 
-  // VAT
-  const vatEnabled = document.getElementById('vatToggle')?.checked;
+  /* ================= VAT ================= */
 
-  const vat = vatEnabled ? subtotal * 0.12 : 0;
+  const vatEnabled =
+    document.getElementById('vatToggle')?.checked;
 
-  const total = subtotal + vat;
+  const vat =
+    vatEnabled ? subtotal * 0.12 : 0;
 
-  // UPDATE UI
+  const total =
+    subtotal + vat;
+
+  /* ================= UPDATE UI ================= */
+
   document.getElementById('subtotal').textContent =
     '₱' + fmt(subtotal);
 
@@ -231,22 +284,171 @@ function renderCart() {
   document.getElementById('total').textContent =
     '₱' + fmt(total);
 
-  // CART COUNT
-  const totalQty = ids.reduce((sum, id) => {
-    return sum + cart[id].qty;
-  }, 0);
+  /* ================= CART COUNT ================= */
+
+  const totalQty =
+    ids.reduce((sum, id) => {
+
+      return sum + cart[id].qty;
+
+    }, 0);
 
   document.getElementById('cartCount').textContent =
     totalQty;
 }
 
-/* ───────────────── HELPERS ───────────────── */
+/* =========================================================
+   PAYMENT
+========================================================= */
+
+function proceedPayment() {
+
+  const totalText =
+    document.getElementById('total').textContent;
+
+  document.getElementById('payTotalDisplay').textContent =
+    totalText;
+
+  document.getElementById('cashInput').value = '';
+
+  document.getElementById('changeDisplay').style.display =
+    'none';
+
+  document.getElementById('confirmPayBtn').disabled =
+    true;
+
+  new bootstrap.Modal(
+    document.getElementById('payModal')
+  ).show();
+}
+
+/* =========================================================
+   CHANGE
+========================================================= */
+
+function calcChange() {
+
+  const cash =
+    parseFloat(
+      document.getElementById('cashInput').value
+    ) || 0;
+
+  const total =
+    parseFloat(
+      document.getElementById('total')
+      .textContent
+      .replace(/[₱,]/g, '')
+    ) || 0;
+
+  const change = cash - total;
+
+  const disp =
+    document.getElementById('changeDisplay');
+
+  const btn =
+    document.getElementById('confirmPayBtn');
+
+  if (cash >= total && total > 0) {
+
+    disp.style.display = 'flex';
+
+    document.getElementById('changeAmt').textContent =
+      '₱' + fmt(change);
+
+    btn.disabled = false;
+
+  } else {
+
+    disp.style.display = 'none';
+
+    btn.disabled = true;
+
+  }
+}
+
+/* =========================================================
+   CONFIRM PAYMENT
+========================================================= */
+
+function confirmPayment() {
+
+  if (Object.keys(cart).length === 0) return;
+
+  fetch("process_order.php", {
+
+    method: "POST",
+
+    headers: {
+      "Content-Type":
+      "application/x-www-form-urlencoded"
+    },
+
+    body:
+      "cart=" +
+      encodeURIComponent(JSON.stringify(cart))
+
+  })
+
+  .then(res => res.json())
+
+  .then(data => {
+
+    if (data.status === "success") {
+
+      const payModal =
+        bootstrap.Modal.getInstance(
+          document.getElementById('payModal')
+        );
+
+      if (payModal) payModal.hide();
+
+      new bootstrap.Modal(
+        document.getElementById('successModal')
+      ).show();
+
+      clearCart();
+
+      setTimeout(() => {
+
+        location.reload();
+
+      }, 1000);
+
+    } else {
+
+      showToast(
+        "Error processing order",
+        "warning"
+      );
+
+    }
+
+  });
+}
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
 function fmt(n) {
 
   return Number(n).toLocaleString('en-PH', {
+
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
+
   });
+
+}
+
+function escHtml(str) {
+
+  return String(str)
+
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 
 }
 
@@ -257,16 +459,28 @@ function showToast(msg, type='info') {
   t.textContent = msg;
 
   t.style.cssText = `
+
     position:fixed;
     bottom:20px;
     left:50%;
     transform:translateX(-50%);
-    background:${type==='warning' ? '#d97706' : '#2563eb'};
+
+    background:${
+      type==='warning'
+      ? '#d97706'
+      : '#2563eb'
+    };
+
     color:#fff;
+
     padding:10px 20px;
+
     border-radius:8px;
-    z-index:9999;
+
     font-size:13px;
+
+    z-index:9999;
+
   `;
 
   document.body.appendChild(t);

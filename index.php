@@ -96,58 +96,98 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
         </div>
       <?php endif; ?>
 
-      <?php foreach ($products as $p):
-        $imgSrc = $p['image'] && file_exists($p['image']) ? htmlspecialchars($p['image']) : '';
-        $outOfStock = $p['stock'] <= 0;
-      ?>
-      <div class="product-card <?= $outOfStock ? 'out-of-stock' : '' ?>"
-       data-id="<?= $p['id'] ?>"
-       data-name="<?= htmlspecialchars($p['product_name'], ENT_QUOTES) ?>"
-       data-price="<?= $p['price'] ?>"
-       data-stock="<?= $p['stock'] ?>"
-       data-image="<?= $imgSrc ?>"
-       data-cat="<?= htmlspecialchars($p['categories']) ?>">
-        <div class="card-img-wrap">
-          <?php if ($imgSrc): ?>
-            <img src="<?= $imgSrc ?>" alt="<?= htmlspecialchars($p['product_name']) ?>">
-          <?php else: ?>
-            <div class="card-img-placeholder">
-              <?php
-                $icons = ['Air Conditioner'=>'bi-wind','Dishwasher'=>'bi-droplet-fill',
-                          'Microwave'=>'bi-broadcast','Oven'=>'bi-fire',
-                          'Refrigerator'=>'bi-thermometer-snow','Washer'=>'bi-arrow-repeat'];
-                $icon = $icons[$p['categories']] ?? 'bi-plug-fill';
-              ?>
-              <i class="bi <?= $icon ?>"></i>
-            </div>
-          <?php endif; ?>
-          <div class="stock-badge <?= $p['stock'] <= 5 ? ($outOfStock ? 'badge-out' : 'badge-low') : 'badge-ok' ?>">
-            <?= $outOfStock ? 'Out of Stock' : ($p['stock'] <= 5 ? 'Low: '.$p['stock'] : 'Stock: '.$p['stock']) ?>
-          </div>
-        </div>
-        <div class="card-body-custom">
-          <div class="cat-tag"><?= htmlspecialchars($p['categories']) ?></div>
-          <h6 class="product-name"><?= htmlspecialchars($p['product_name']) ?></h6>
-          <div class="price-row">
-            <a href="edit.php?id=<?= $p['id'] ?>" class="btn btn-warning btn-sm">
-  <i class="bi bi-pencil"></i>
-</a>
+      <!-- ================= PRODUCT CARD ================= -->
+<?php foreach ($products as $p):
 
-<a href="delete.php?id=<?= $p['id'] ?>" 
-   class="btn btn-danger btn-sm"
-   onclick="return confirm('Delete this item?');">
-  <i class="bi bi-trash"></i>
-</a>
-            <span class="price">₱<?= number_format($p['price'], 2) ?></span>
-            <button class="add-btn add-to-cart"
-        <?= $outOfStock ? 'disabled' : '' ?>
-        onclick="addToCart(this)">
-  <i class="bi bi-plus-lg"></i>
-</button>
-          </div>
+$imgSrc = $p['image'] && file_exists($p['image'])
+  ? htmlspecialchars($p['image'])
+  : 'assets/img/no-image.png';
+
+$outOfStock = $p['stock'] <= 0;
+
+?>
+
+<div class="product-card <?= $outOfStock ? 'out-of-stock' : '' ?>"
+
+     data-id="<?= $p['id'] ?>"
+     data-name="<?= htmlspecialchars($p['product_name'], ENT_QUOTES) ?>"
+     data-price="<?= $p['price'] ?>"
+     data-stock="<?= $p['stock'] ?>"
+     data-image="<?= $imgSrc ?>"
+     data-cat="<?= htmlspecialchars($p['categories']) ?>">
+
+    <!-- IMAGE -->
+    <div class="card-img-wrap">
+
+        <img src="<?= $imgSrc ?>"
+             alt="<?= htmlspecialchars($p['product_name']) ?>">
+
+        <!-- STOCK -->
+        <div class="stock-badge">
+
+            <?= $outOfStock
+            ? 'Out of Stock'
+            : 'Stock: ' . $p['stock'] ?>
+
         </div>
-      </div>
-      <?php endforeach; ?>
+
+    </div>
+
+    <!-- BODY -->
+    <div class="card-body-custom">
+
+        <div class="cat-tag">
+            <?= htmlspecialchars($p['categories']) ?>
+        </div>
+
+        <h6 class="product-name">
+            <?= htmlspecialchars($p['product_name']) ?>
+        </h6>
+
+        <div class="price-row">
+
+            <!-- EDIT -->
+            <a href="edit.php?id=<?= $p['id'] ?>"
+               class="btn btn-warning btn-sm">
+
+                <i class="bi bi-pencil"></i>
+
+            </a>
+
+            <!-- DELETE -->
+            <a href="delete.php?id=<?= $p['id'] ?>"
+               class="btn btn-danger btn-sm"
+               onclick="return confirm('Delete this product?')">
+
+                <i class="bi bi-trash"></i>
+
+            </a>
+
+            <!-- PRICE -->
+            <span class="price">
+
+                ₱<?= number_format($p['price'], 2) ?>
+
+            </span>
+
+            <!-- ADD TO CART -->
+            <button class="add-btn add-to-cart"
+
+                    <?= $outOfStock ? 'disabled' : '' ?>
+
+                    onclick="addToCart(this)">
+
+                <i class="bi bi-plus-lg"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<?php endforeach; ?>
     </div>
   </div>
 
@@ -288,9 +328,10 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
     applyCategory(activePill.dataset.cat);
   }
 })();
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="assets/js/app.js"></script>
-</script>
 </body>
 </html>

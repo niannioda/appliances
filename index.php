@@ -46,7 +46,7 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
   <div class="navbar-search">
     <div class="search-wrap">
       <i class="bi bi-search search-icon"></i>
-      <input type="text" id="searchInput" placeholder="Search product...">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search product..." value="<?= htmlspecialchars($search) ?>">
     </div>
   </div>
 

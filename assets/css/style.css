@@ -244,7 +244,25 @@ body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; co
 }
 .btn-pay:disabled { opacity: .4; cursor: not-allowed; }
 .btn-pay:not(:disabled):hover { opacity: .9; }
+/* ── ALERT MESSAGE ─────────────────────────────────────────── */
+.alert {
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    font-weight: bold;
+}
 
+.alert-danger {
+    background: #ffe5e5;
+    color: #d60000;
+    border: 1px solid #ffb3b3;
+}
+
+.alert.success {
+    background: #e6ffed;
+    color: #1a7f37;
+    border: 1px solid #b7f5c5;
+}
 /* ── PAYMENT / RECEIPT MODAL ───────────────────────────────── */
 .pay-modal, .receipt-modal { border-radius: 16px; overflow: hidden; }
 .pay-total-display {

@@ -56,11 +56,16 @@ function changeQty(id, delta) {
 
   cart[id].qty += delta;
 
+  // prevent exceeding stock
+  if (cart[id].qty > cart[id].stock) {
+    cart[id].qty = cart[id].stock;
+  }
+
+  // remove item if qty becomes 0
   if (cart[id].qty <= 0) {
     delete cart[id];
   }
 
-  // IMPORTANT
   renderCart();
 }
 

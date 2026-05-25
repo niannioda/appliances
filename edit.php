@@ -15,6 +15,8 @@ $stmt->execute();
 $stmt->store_result();
 
 if ($stmt->num_rows > 0) {
+    $stmt->close();
+
     $msg = urlencode("⚠️ Product already exists!");
     header("Location: products.php?flash=error&msg=$msg");
     exit;

@@ -1,220 +1,276 @@
-let cart = {}; // { id: { name, price, qty, stock, image } }
+let cart = {};
 
 <script src="assets/js/app.js"></script>
-/* ── Add to Cart ─────────────────────────────────────────────── */
+/* ───────────────── ADD TO CART ───────────────── */
 function addToCart(btn) {
+
   const card = btn.closest('.product-card');
 
   const id    = card.dataset.id;
   const name  = card.dataset.name;
   const price = parseFloat(card.dataset.price);
   const stock = parseInt(card.dataset.stock);
-  const image = card.dataset.image; // ✅ added
+  const image = card.dataset.image;
 
-  if (!cart[id]) {
+  // If product already exists → increase qty
+  if (cart[id]) {
+
+    if (cart[id].qty < stock) {
+      cart[id].qty++;
+    } else {
+      showToast("Stock limit reached!", "warning");
+      return;
+    }
+
+  } else {
+
+    // Add new product
     cart[id] = {
       id,
       name,
       price,
-      qty: 1,
       stock,
-      image
+      image,
+      qty: 1
     };
-  } else {
-    if (cart[id].qty < stock) {
-      cart[id].qty++;
-    } else {
-      showToast("Not enough stock!", "warning");
-      return;
-    }
+
   }
 
   renderCart();
 }
 
-/* ── Change Quantity ─────────────────────────────────────────── */
-function changeQty(id, delta) {
+/* ───────────────── CHANGE QTY ───────────────── */
+function changeQty(id, action) {
+
   if (!cart[id]) return;
 
-  cart[id].qty < stock;
+  if (action === 'plus') {
 
-  if (cart[id].qty <= 0) delete cart[id];
+    if (cart[id].qty < cart[id].stock) {
+      cart[id].qty++;
+    } else {
+      showToast("No more stock available!", "warning");
+      return;
+    }
+
+  }
+
+  if (action === 'minus') {
+
+    cart[id].qty--;
+
+    // remove item if qty = 0
+    if (cart[id].qty <= 0) {
+      delete cart[id];
+    }
+
+  }
 
   renderCart();
 }
 
-/* ── Clear Cart ──────────────────────────────────────────────── */
+/* ───────────────── REMOVE ITEM ───────────────── */
+function removeItem(id) {
+
+  delete cart[id];
+
+  renderCart();
+}
+
+/* ───────────────── CLEAR CART ───────────────── */
 function clearCart() {
+
   cart = {};
+
   renderCart();
 }
 
-/* ── Render Cart ─────────────────────────────────────────────── */
+/* ───────────────── RENDER CART ───────────────── */
 function renderCart() {
-  const container = document.getElementById('orderItems');
-  const empty     = document.getElementById('cartEmpty');
-  const ids       = Object.keys(cart);
 
+  const orderItems = document.getElementById('orderItems');
+
+  let html = '';
+
+  let subtotal = 0;
+
+  const ids = Object.keys(cart);
+
+  // Empty cart
   if (ids.length === 0) {
-    container.innerHTML = '';
-    container.appendChild(empty);
-    empty.style.display = 'block';
 
+    orderItems.innerHTML = `
+      <div id="cartEmpty" style="padding:20px; text-align:center; color:#777;">
+        No items yet
+      </div>
+    `;
+
+    document.getElementById('subtotal').textContent = '₱0.00';
+    document.getElementById('total').textContent = '₱0.00';
     document.getElementById('cartCount').textContent = '0';
-    document.getElementById('payBtn').disabled = true;
 
-    recalc();
     return;
   }
 
-  empty.style.display = 'none';
-  let html = '';
-
   ids.forEach(id => {
+
     const item = cart[id];
 
+    subtotal += item.price * item.qty;
+
     html += `
-  <div class="cart-item">
-    <div style="display:flex; gap:10px; align-items:center; flex:1; min-width:0">
-      
-      <img src="${item.image}" width="50" height="50"
-           style="object-fit:cover; border-radius:8px;">
+      <div class="cart-item"
+        style="
+          display:flex;
+          align-items:center;
+          gap:10px;
+          margin-bottom:15px;
+          border-bottom:1px solid #eee;
+          padding-bottom:10px;
+        ">
 
-      <div>
-        <div class="ci-name">${escHtml(item.name)}</div>
-        <div class="ci-price">
-          ₱${fmt(item.price)} × ${item.qty} = ₱${fmt(item.price * item.qty)}
+        <!-- PRODUCT IMAGE -->
+        <img src="${item.image}"
+          width="55"
+          height="55"
+          style="
+            object-fit:cover;
+            border-radius:8px;
+          ">
+
+        <!-- PRODUCT INFO -->
+        <div style="flex:1; min-width:0;">
+
+          <div style="
+            font-weight:600;
+            font-size:14px;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          ">
+            ${item.name}
+          </div>
+
+          <div style="
+            font-size:13px;
+            color:#666;
+          ">
+            ₱${fmt(item.price)} × ${item.qty}
+            =
+            ₱${fmt(item.price * item.qty)}
+          </div>
+
         </div>
+
+        <!-- QTY CONTROLS -->
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:5px;
+        ">
+
+          <button onclick="changeQty('${id}','minus')"
+            style="
+              width:28px;
+              height:28px;
+              border:none;
+              border-radius:6px;
+              cursor:pointer;
+            ">
+            −
+          </button>
+
+          <span>${item.qty}</span>
+
+          <button onclick="changeQty('${id}','plus')"
+            style="
+              width:28px;
+              height:28px;
+              border:none;
+              border-radius:6px;
+              cursor:pointer;
+            ">
+            +
+          </button>
+
+        </div>
+
+        <!-- REMOVE BUTTON -->
+        <button onclick="removeItem('${id}')"
+          style="
+            border:none;
+            background:red;
+            color:white;
+            width:28px;
+            height:28px;
+            border-radius:6px;
+            cursor:pointer;
+          ">
+          ×
+        </button>
+
       </div>
-
-    </div>
-
-    <div class="qty-controls">
-      <button class="qty-btn" onclick="changeQty('${id}', -1)">−</button>
-      <span class="qty-val">${item.qty}</span>
-      <button class="qty-btn" onclick="changeQty('${id}', 1)"
-        ${item.qty >= item.stock ? 'disabled' : ''}>+</button>
-    </div>
-  </div>
-`;
+    `;
   });
 
-  container.innerHTML = html;
+  orderItems.innerHTML = html;
 
-  const totalItems = ids.reduce((s, id) => s + cart[id].qty, 0);
-  document.getElementById('cartCount').textContent = totalItems;
-  document.getElementById('payBtn').disabled = false;
+  // VAT
+  const vatEnabled = document.getElementById('vatToggle')?.checked;
 
-  recalc();
+  const vat = vatEnabled ? subtotal * 0.12 : 0;
+
+  const total = subtotal + vat;
+
+  // UPDATE UI
+  document.getElementById('subtotal').textContent =
+    '₱' + fmt(subtotal);
+
+  document.getElementById('vatAmount').textContent =
+    '₱' + fmt(vat);
+
+  document.getElementById('total').textContent =
+    '₱' + fmt(total);
+
+  // CART COUNT
+  const totalQty = ids.reduce((sum, id) => {
+    return sum + cart[id].qty;
+  }, 0);
+
+  document.getElementById('cartCount').textContent =
+    totalQty;
 }
 
-/* ── Recalculate ─────────────────────────────────────────────── */
-function recalc() {
-  const subtotal = Object.values(cart)
-    .reduce((s, i) => s + i.price * i.qty, 0);
-
-  const vatOn  = document.getElementById('vatToggle')?.checked;
-  const vatAmt = vatOn ? subtotal * 0.12 : 0;
-  const total  = subtotal + vatAmt;
-
-  document.getElementById('subtotal').textContent = '₱' + fmt(subtotal);
-  document.getElementById('vatAmount').textContent = '₱' + fmt(vatAmt);
-  document.getElementById('total').textContent     = '₱' + fmt(total);
-}
-
-/* ── Payment Flow ────────────────────────────────────────────── tewateraterteaoiea0te00e*/
-function proceedPayment() {
-  const totalText = document.getElementById('total').textContent;
-
-  document.getElementById('payTotalDisplay').textContent = totalText;
-  document.getElementById('cashInput').value = '';
-  document.getElementById('changeDisplay').style.display = 'none';
-  document.getElementById('confirmPayBtn').disabled = true;
-
-  new bootstrap.Modal(document.getElementById('payModal')).show();
-}
-
-function calcChange() {
-  const cash = parseFloat(document.getElementById('cashInput').value) || 0;
-  const total = parseFloat(document.getElementById('total').textContent.replace(/[₱,]/g, '')) || 0;
-
-  const change = cash - total;
-
-  const disp = document.getElementById('changeDisplay');
-  const btn  = document.getElementById('confirmPayBtn');
-
-  if (cash >= total && total > 0) {
-    disp.style.display = 'flex';
-    document.getElementById('changeAmt').textContent = '₱' + fmt(change);
-    btn.disabled = false;
-  } else {
-    disp.style.display = 'none';
-    btn.disabled = true;
-  }
-}
-
-/* ── FINAL FIXED CONFIRM PAYMENT (IMPORTANT) ─────────────────── */
-function confirmPayment() {
-  if (Object.keys(cart).length === 0) return;
-
-  fetch("process_order.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: "cart=" + encodeURIComponent(JSON.stringify(cart))
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.status === "success") {
-
-      // Close payment modal
-      const payModal = bootstrap.Modal.getInstance(document.getElementById('payModal'));
-      if (payModal) payModal.hide();
-
-      // Show success modal
-      const modal = new bootstrap.Modal(document.getElementById('successModal'));
-      modal.show();
-
-      // Reset cart
-      clearCart();
-
-      // Refresh stock display
-      setTimeout(() => location.reload(), 1000);
-
-    } else {
-      showToast("Error processing order", "warning");
-    }
-  });
-}
-
-/* ── Helpers ─────────────────────────────────────────────────── */
+/* ───────────────── HELPERS ───────────────── */
 function fmt(n) {
+
   return Number(n).toLocaleString('en-PH', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
-}
 
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
 }
 
 function showToast(msg, type='info') {
+
   const t = document.createElement('div');
+
   t.textContent = msg;
+
   t.style.cssText = `
-    position:fixed;bottom:20px;left:50%;
+    position:fixed;
+    bottom:20px;
+    left:50%;
     transform:translateX(-50%);
-    background:${type==='warning'?'#d97706':'#2563eb'};
-    color:#fff;padding:10px 20px;
-    border-radius:8px;font-size:13px;
+    background:${type==='warning' ? '#d97706' : '#2563eb'};
+    color:#fff;
+    padding:10px 20px;
+    border-radius:8px;
     z-index:9999;
+    font-size:13px;
   `;
+
   document.body.appendChild(t);
+
   setTimeout(() => t.remove(), 2000);
 }

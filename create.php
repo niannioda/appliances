@@ -7,17 +7,19 @@ if(isset($_POST['submit'])){
     $stock = $_POST['stock'];
     $category = $_POST['categories'];
 
-    $s = $conn->prepare("
-    INSERT INTO products (product_name,price,stock,categories,image)
-    VALUES (?,?,?,?,?)
+    $stmt = $conn->prepare("
+    INSERT INTO products (product_name, category, price, stock, image)
+    VALUES (?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE
-        price = VALUES(price),
         stock = stock + VALUES(stock),
-        categories = VALUES(categories),
+        price = VALUES(price),
+        category = VALUES(category),
         image = VALUES(image)
-  ");
-   $s->bind_param('sdiss', $name,$price,$stock,$cat,$imagePath);
-   $ok = $s->execute();
+");
+
+$stmt->bind_param("ssdss", $product_name, $category, $price, $stock, $image);
+$stmt->execute();
+
     header("Location: index.php?flash=success&msg=Product added!");
     exit;
 }

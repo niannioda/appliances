@@ -101,6 +101,9 @@ function clearCart() {
 function renderCart() {
 
   const container = document.getElementById('orderItems');
+  const empty = document.getElementById('cartEmpty');
+
+  if (!container || !empty) return;
 
   const ids = Object.keys(cart);
 
@@ -116,14 +119,13 @@ function renderCart() {
     `;
 
     document.getElementById('cartCount').textContent = '0';
-
     document.getElementById('payBtn').disabled = true;
 
     recalc();
-
     return;
   }
 
+  // HAS ITEMS
   let html = '';
 
   ids.forEach(id => {
@@ -141,15 +143,11 @@ function renderCart() {
                style="object-fit:cover; border-radius:8px;">
 
           <div>
-
-            <div class="ci-name">
-              ${escHtml(item.name)}
-            </div>
+            <div class="ci-name">${item.name}</div>
 
             <div class="ci-price">
               ₱${fmt(item.price)} × ${item.qty}
             </div>
-
           </div>
 
         </div>
@@ -161,12 +159,11 @@ function renderCart() {
             −
           </button>
 
-          <span class="qty-val">
-            ${item.qty}
-          </span>
+          <span class="qty-val">${item.qty}</span>
 
           <button class="qty-btn"
-                  onclick="changeQty('${id}', 1)">
+                  onclick="changeQty('${id}', 1)"
+                  ${item.qty >= item.stock ? 'disabled' : ''}>
             +
           </button>
 
@@ -174,17 +171,18 @@ function renderCart() {
 
       </div>
     `;
-
   });
 
   container.innerHTML = html;
 
-  const totalItems =
-    ids.reduce((s, id) => s + cart[id].qty, 0);
+  // update cart count
+  const totalItems = ids.reduce((sum, id) => {
+    return sum + cart[id].qty;
+  }, 0);
 
-  document.getElementById('cartCount').textContent =
-    totalItems;
+  document.getElementById('cartCount').textContent = totalItems;
 
+  // enable pay button
   document.getElementById('payBtn').disabled = false;
 
   recalc();

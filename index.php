@@ -38,17 +38,64 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
   <div class="navbar-brand-area">
     <div class="brand-icon"><i class="bi bi-plug-fill"></i></div>
     <div class="brand-text">
-      <span class="brand-name">ApplianceLogix</span>
-      <span class="brand-sub">Inventory POS</span>
+      <span class="brand-name">Appliances Inventory</span>
+      <span class="brand-sub">Inventory HOME</span>
     </div>
   </div>
 
-  <div class="navbar-search">
-    <div class="search-wrap">
-      <i class="bi bi-search search-icon"></i>
-      <input type="text" id="searchInput" class="search-input" placeholder="Search product..." value="<?= htmlspecialchars($search) ?>">
+  <!-- ================= SEARCH BAR ================= -->
+
+<div class="navbar-search">
+
+    <div class="search-box">
+
+        <!-- SEARCH ICON -->
+        <i class="bi bi-search search-icon"></i>
+
+        <!-- SEARCH INPUT -->
+        <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search appliances..."
+            autocomplete="off"
+        >
+
     </div>
-  </div>
+
+</div>
+
+<!-- ================= SEARCH FUNCTION ================= -->
+
+<script>
+
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("keyup", function () {
+
+    let searchValue = this.value.toLowerCase();
+
+    let products = document.querySelectorAll(".product-card");
+
+    products.forEach(product => {
+
+        let productName = product.dataset.name.toLowerCase();
+
+        if (productName.includes(searchValue)) {
+
+            product.style.display = "block";
+
+        } else {
+
+            product.style.display = "none";
+
+        }
+
+    });
+
+});
+
+</script>
 
   <div class="navbar-actions">
     <a href="products.php" class="btn btn-outline-light btn-sm">

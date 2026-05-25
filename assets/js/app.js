@@ -55,12 +55,12 @@ function addToCart(btn) {
    CHANGE QUANTITY
 ========================================================= */
 
-function changeQty(id, action) {
+function changeQty(id, delta) {
 
   if (!cart[id]) return;
 
-  // PLUS
-  if (action === 'plus') {
+  // increase
+  if (delta === 1) {
 
     if (cart[id].qty < cart[id].stock) {
 
@@ -68,18 +68,19 @@ function changeQty(id, action) {
 
     } else {
 
-      showToast("No more stock available!", "warning");
+      showToast("Stock limit reached!", "warning");
       return;
 
     }
 
   }
 
-  // MINUS
-  if (action === 'minus') {
+  // decrease
+  if (delta === -1) {
 
     cart[id].qty--;
 
+    // remove if zero
     if (cart[id].qty <= 0) {
 
       delete cart[id];
@@ -88,6 +89,7 @@ function changeQty(id, action) {
 
   }
 
+  // refresh cart instantly
   renderCart();
 }
 
@@ -100,6 +102,7 @@ function removeItem(id) {
   delete cart[id];
 
   renderCart();
+
 }
 
 /* =========================================================
@@ -212,13 +215,12 @@ function renderCart() {
                  gap:5px;
                ">
 
-              <button class="qty-btn"
+              <button class="remove-btn"
+        onclick="removeItem('${id}')">
 
-                      onclick="changeQty('${id}','minus')">
+   ×
 
-                  −
-
-              </button>
+</button>
 
               <span class="qty-val">
 

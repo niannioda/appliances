@@ -69,9 +69,9 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
 
 <script>
 
-const searchInput = document.getElementById("searchInput");
+ const searchInput = document.getElementById("searchInput");
 
-searchInput.addEventListener("keyup", function () {
+ searchInput.addEventListener("keyup", function () {
 
     let searchValue = this.value.toLowerCase();
 

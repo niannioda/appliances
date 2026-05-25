@@ -101,11 +101,12 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
         $outOfStock = $p['stock'] <= 0;
       ?>
       <div class="product-card <?= $outOfStock ? 'out-of-stock' : '' ?>"
-           data-id="<?= $p['id'] ?>"
-           data-name="<?= htmlspecialchars($p['product_name'], ENT_QUOTES) ?>"
-           data-price="<?= $p['price'] ?>"
-           data-stock="<?= $p['stock'] ?>"
-           data-cat="<?= htmlspecialchars($p['categories']) ?>">
+       data-id="<?= $p['id'] ?>"
+       data-name="<?= htmlspecialchars($p['product_name'], ENT_QUOTES) ?>"
+       data-price="<?= $p['price'] ?>"
+       data-stock="<?= $p['stock'] ?>"
+       data-image="<?= $imgSrc ?>"
+       data-cat="<?= htmlspecialchars($p['categories']) ?>">
         <div class="card-img-wrap">
           <?php if ($imgSrc): ?>
             <img src="<?= $imgSrc ?>" alt="<?= htmlspecialchars($p['product_name']) ?>">
@@ -138,9 +139,11 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
   <i class="bi bi-trash"></i>
 </a>
             <span class="price">₱<?= number_format($p['price'], 2) ?></span>
-            <button class="add-btn" <?= $outOfStock ? 'disabled' : '' ?> onclick="addToCart(this)">
-              <i class="bi bi-plus-lg"></i>
-            </button>
+            <button class="add-btn add-to-cart"
+        <?= $outOfStock ? 'disabled' : '' ?>
+        onclick="addToCart(this)">
+  <i class="bi bi-plus-lg"></i>
+</button>
           </div>
         </div>
       </div>

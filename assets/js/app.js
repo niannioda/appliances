@@ -1,5 +1,6 @@
 let cart = {}; // { id: { name, price, qty, stock, image } }
 
+<script src="assets/js/app.js"></script>
 /* ── Add to Cart ─────────────────────────────────────────────── */
 function addToCart(btn) {
   const card = btn.closest('.product-card');

@@ -52,21 +52,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        if ($pid) {
-            $s = $conn->prepare('UPDATE products SET product_name=?,price=?,stock=?,categories=?,image=? WHERE id=?');
-            $s->bind_param('sdissi', $name,$price,$stock,$cat,$imagePath,$pid);
-            $ok  = $s->execute();
-            $msg = $ok ? urlencode("✅ «$name» updated!") : urlencode('❌ '.$conn->error);
-            $ft  = $ok ? 'success' : 'error';
-        } else {
-            $s = $conn->prepare('INSERT INTO products (product_name,price,stock,categories,image) VALUES (?,?,?,?,?)');
-            $s->bind_param('sdiss', $name,$price,$stock,$cat,$imagePath);
-            $ok  = $s->execute();
-            $msg = $ok ? urlencode("✅ «$name» added!") : urlencode('❌ '.$conn->error);
-            $ft  = $ok ? 'success' : 'error';
-        }
-        header("Location: products.php?flash=$ft&msg=$msg"); exit;
+
+    // ── CHECK DUPLICATE PRODUCT NAME (exclude current ID when editing)
+    $check = $conn->prepare("SELECT id FROM products WHERE LOWER(product_name) = LOWER(?) AND id != ?");
+    $check->bind_param("si", $name, $pid);
+    $check->execute();
+    $check->store_result();
+
+    if ($check->num_rows > 0) {
+
+        $msg = urlencode("⚠️ Product already exists!");
+        header("Location: products.php?flash=error&msg=$msg");
+        exit;
     }
+
+    // ── INSERT OR UPDATE
+    if ($pid) {
+
+        $s = $conn->prepare('UPDATE products SET product_name=?, price=?, stock=?, categories=?, image=? WHERE id=?');
+        $s->bind_param('sdissi', $name, $price, $stock, $cat, $imagePath, $pid);
+        $ok = $s->execute();
+
+        $msg = $ok ? urlencode("✅ «$name» updated!") : urlencode('❌ ' . $conn->error);
+        $ft  = $ok ? 'success' : 'error';
+
+    } else {
+
+        $s = $conn->prepare('INSERT INTO products (product_name, price, stock, categories, image) VALUES (?,?,?,?,?)');
+        $s->bind_param('sdiss', $name, $price, $stock, $cat, $imagePath);
+        $ok = $s->execute();
+
+        $msg = $ok ? urlencode("✅ «$name» added!") : urlencode('❌ ' . $conn->error);
+        $ft  = $ok ? 'success' : 'error';
+    }
+
+    header("Location: products.php?flash=$ft&msg=$msg");
+    exit;
+}
     // repopulate form on error
     $editing = ['id'=>$pid,'product_name'=>$name,'price'=>$price,'stock'=>$stock,'categories'=>$cat,'image'=>$imagePath];
     $action  = $pid ? 'edit' : 'add';

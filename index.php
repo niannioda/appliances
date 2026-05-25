@@ -125,9 +125,11 @@ $outOfStock = $p['stock'] <= 0;
         <!-- STOCK -->
         <div class="stock-badge">
 
-            <?= $outOfStock
+            <?=
+            $outOfStock
             ? 'Out of Stock'
-            : 'Stock: ' . $p['stock'] ?>
+            : 'Stock: ' . $p['stock']
+            ?>
 
         </div>
 
@@ -149,9 +151,7 @@ $outOfStock = $p['stock'] <= 0;
             <!-- EDIT -->
             <a href="edit.php?id=<?= $p['id'] ?>"
                class="btn btn-warning btn-sm">
-
                 <i class="bi bi-pencil"></i>
-
             </a>
 
             <!-- DELETE -->
@@ -165,9 +165,7 @@ $outOfStock = $p['stock'] <= 0;
 
             <!-- PRICE -->
             <span class="price">
-
                 ₱<?= number_format($p['price'], 2) ?>
-
             </span>
 
             <!-- ADD TO CART -->
@@ -328,10 +326,9 @@ $outOfStock = $p['stock'] <= 0;
     applyCategory(activePill.dataset.cat);
   }
 })();
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="assets/js/app.js"></script>
+</script>
 </body>
 </html>

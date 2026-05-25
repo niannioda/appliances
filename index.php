@@ -30,36 +30,99 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
 </head>
 <body>
 
-<!-- ── TOP NAVBAR ── -->
- <a href="create.php" class="btn btn-primary btn-sm">
-  <i class="bi bi-plus-lg"></i> Add Product
-</a>
-<nav class="top-navbar">
-  <div class="navbar-brand-area">
-    <div class="brand-icon"><i class="bi bi-plug-fill"></i></div>
-    <div class="brand-text">
-      <span class="brand-name">ApplianceLogix</span>
-      <span class="brand-sub">Inventory POS</span>
-    </div>
-  </div>
+<!-- ================= TOP NAVIGATION ================= -->
 
-  <div class="navbar-search">
-    <div class="search-wrap">
-      <i class="bi bi-search search-icon"></i>
-      <input type="text" id="searchInput" class="search-input" placeholder="Search product..." value="<?= htmlspecialchars($search) ?>">
-    </div>
-  </div>
+<header class="main-navbar">
 
-  <div class="navbar-actions">
-    <a href="products.php" class="btn btn-outline-light btn-sm">
-      <i class="bi bi-grid-3x3-gap"></i> Manage Products
-    </a>
-    <div class="cart-badge-wrap">
-      <i class="bi bi-cart3 cart-icon"></i>
-      <span class="cart-count" id="cartCount">0</span>
+    <!-- LEFT SIDE -->
+    <div class="nav-left">
+
+        <!-- LOGO -->
+        <div class="logo-box">
+            <i class="bi bi-lightning-charge-fill"></i>
+        </div>
+
+        <!-- BRAND -->
+        <div class="brand-details">
+            <h5 class="brand-title">ApplianceHub</h5>
+            <small class="brand-caption">Sales & Inventory System</small>
+        </div>
+
     </div>
-  </div>
-</nav>
+
+    <!-- CENTER SEARCH -->
+    <div class="nav-center">
+
+        <div class="search-container">
+
+            <i class="bi bi-search"></i>
+
+            <!-- SEARCH INPUT -->
+            <input
+                type="text"
+                id="searchInput"
+                class="product-search"
+                placeholder="Search appliances..."
+                value="<?= htmlspecialchars($search) ?>"
+            >
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="nav-right">
+
+        <!-- ADD PRODUCT -->
+        <a href="create.php" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle"></i>
+            Add Appliance
+        </a>
+
+        <!-- MANAGE -->
+        <a href="products.php" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-box-seam"></i>
+            Products
+        </a>
+
+        <!-- CART -->
+        <div class="cart-wrapper">
+
+            <i class="bi bi-cart4 cart-icon"></i>
+
+            <span class="cart-badge" id="cartCount">
+                0
+            </span>
+
+        </div>
+
+    </div>
+
+</header>
+
+<!-- ================= SEARCH SCRIPT ================= -->
+
+<script>
+document.getElementById("searchInput").addEventListener("keyup", function () {
+
+    let value = this.value.toLowerCase();
+
+    let products = document.querySelectorAll(".product-card");
+
+    products.forEach(product => {
+
+        let productName = product.dataset.name.toLowerCase();
+
+        if (productName.includes(value)) {
+            product.style.display = "block";
+        } else {
+            product.style.display = "none";
+        }
+
+    });
+
+});
+</script>
 
 <!-- ── CATEGORY PILLS ── -->
 <div class="cat-bar">

@@ -1,7 +1,13 @@
 <?php
 require_once 'config.php';
 
-$s = $conn->prepare("
+if(isset($_POST['submit'])){
+    $name = $_POST['product_name'];
+    $price = $_POST['price'];
+    $stock = $_POST['stock'];
+    $category = $_POST['categories'];
+
+    $s = $conn->prepare("
     INSERT INTO products (product_name,price,stock,categories,image)
     VALUES (?,?,?,?,?)
     ON DUPLICATE KEY UPDATE
@@ -9,9 +15,12 @@ $s = $conn->prepare("
         stock = stock + VALUES(stock),
         categories = VALUES(categories),
         image = VALUES(image)
-");
-$s->bind_param('sdiss', $name,$price,$stock,$cat,$imagePath);
-$ok = $s->execute();
+  ");
+   $s->bind_param('sdiss', $name,$price,$stock,$cat,$imagePath);
+   $ok = $s->execute();
+    header("Location: index.php?flash=success&msg=Product added!");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>

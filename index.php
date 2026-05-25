@@ -39,7 +39,7 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
     <div class="brand-icon"><i class="bi bi-plug-fill"></i></div>
     <div class="brand-text">
       <span class="brand-name">Appliances Inventory</span>
-      <span class="brand-sub">Inventory HOME</span>
+      <span class="brand-sub">Inventory POS</span>
     </div>
   </div>
 

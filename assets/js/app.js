@@ -2,363 +2,259 @@
    CART SYSTEM
 ========================================================= */
 
-let cart = {};
+let cart = [];
 
-/* =========================================================
+/* =========================
    ADD TO CART
-========================================================= */
-
-/* ── Add to Cart ───────────────────────── */
+========================= */
 function addToCart(btn) {
 
-  const card = btn.closest('.product-card');
+    const card = btn.closest(".product-card");
 
-  const id    = card.dataset.id;
-  const name  = card.dataset.name;
-  const price = parseFloat(card.dataset.price);
-  const stock = parseInt(card.dataset.stock);
-  const image = card.dataset.image;
+    const id = card.dataset.id;
+    const name = card.dataset.name;
+    const price = parseFloat(card.dataset.price);
+    const image = card.dataset.image;
+    const stock = parseInt(card.dataset.stock);
 
-  if (!cart[id]) {
+    let existing = cart.find(item => item.id === id);
 
-    cart[id] = {
-      id,
-      name,
-      price,
-      qty: 1,
-      stock,
-      image
-    };
+    if (existing) {
 
-  } else {
+        if (existing.qty >= stock) {
+            alert("Not enough stock.");
+            return;
+        }
 
-    if (cart[id].qty < stock) {
-
-      cart[id].qty++;
+        existing.qty++;
 
     } else {
 
-      showToast("Not enough stock!", "warning");
-      return;
+        cart.push({
+            id,
+            name,
+            price,
+            image,
+            stock,
+            qty: 1
+        });
 
     }
 
-  }
-
-  renderCart();
-}
-/* =========================================================
-   CHANGE QUANTITY
-========================================================= */
-
-/* ── Change Quantity ───────────────────── */
-function changeQty(id, delta) {
-
-  if (!cart[id]) return;
-
-  cart[id].qty += delta;
-
-  // limit to stock
-  if (cart[id].qty > cart[id].stock) {
-    cart[id].qty = cart[id].stock;
-  }
-
-  // remove item if quantity is 0
-  if (cart[id].qty <= 0) {
-    delete cart[id];
-  }
-
-  renderCart();
+    renderCart();
 }
 
-/* =========================================================
-   REMOVE ITEM
-========================================================= */
-
-function removeItem(id) {
-
-  delete cart[id];
-
-  renderCart();
-
-}
-
-/* =========================================================
-   CLEAR CART
-========================================================= */
-
-function clearCart() {
-
-  cart = {};
-
-  renderCart();
-}
-
-/* =========================================================
+/* =========================
    RENDER CART
-========================================================= */
-
+========================= */
 function renderCart() {
 
-  const container = document.getElementById('orderItems');
+    const orderItems = document.getElementById("orderItems");
+    const cartEmpty = document.getElementById("cartEmpty");
 
-  if (!container) return;
+    orderItems.innerHTML = "";
 
-  const ids = Object.keys(cart);
+    if (cart.length === 0) {
 
-  // EMPTY CART
-  if (ids.length === 0) {
+        orderItems.appendChild(cartEmpty);
 
-    container.innerHTML = `
-      <div class="cart-empty">
-        <i class="bi bi-cart-x"></i>
-        <p>No items yet</p>
-        <small>Click + on a product to add</small>
-      </div>
-    `;
+        document.getElementById("subtotal").innerText = "₱0.00";
+        document.getElementById("vat").innerText = "₱0.00";
+        document.getElementById("total").innerText = "₱0.00";
 
-    document.getElementById('cartCount').textContent = '0';
+        document.getElementById("cartCount").innerText = "0";
 
-    document.getElementById('subtotal').textContent = '₱0.00';
-    document.getElementById('vat').textContent = '₱0.00';
-    document.getElementById('total').textContent = '₱0.00';
+        document.getElementById("payBtn").disabled = true;
 
-    document.getElementById('payBtn').disabled = true;
+        return;
+    }
 
-    return;
-  }
+    let subtotal = 0;
+    let totalQty = 0;
 
-  let html = '';
+    cart.forEach((item, index) => {
 
-  let subtotal = 0;
+        subtotal += item.price * item.qty;
+        totalQty += item.qty;
 
-  ids.forEach(id => {
+        const div = document.createElement("div");
 
-    const item = cart[id];
+        div.className = "cart-item mb-3";
 
-    const itemTotal = item.price * item.qty;
+        div.innerHTML = `
+            <div class="d-flex align-items-center gap-2">
 
-    subtotal += itemTotal;
+                <img src="${item.image}"
+                     width="60"
+                     height="60"
+                     style="object-fit:cover;border-radius:10px;">
 
-    html += `
-      <div class="cart-item">
+                <div class="flex-grow-1">
 
-        <div style="display:flex; gap:10px; align-items:center; flex:1;">
+                    <div class="fw-semibold">${item.name}</div>
 
-          <img src="${item.image}"
-               width="50"
-               height="50"
-               style="object-fit:cover; border-radius:8px;">
+                    <small>
+                        ₱${item.price.toLocaleString()} × ${item.qty}
+                    </small>
 
-          <div>
+                </div>
 
-            <div class="ci-name">
-              ${item.name}
+                <div class="d-flex align-items-center gap-2">
+
+                    <button class="btn btn-sm btn-outline-secondary"
+                            onclick="changeQty(${index}, -1)">
+                        -
+                    </button>
+
+                    <span>${item.qty}</span>
+
+                    <button class="btn btn-sm btn-outline-secondary"
+                            onclick="changeQty(${index}, 1)">
+                        +
+                    </button>
+
+                </div>
+
             </div>
+        `;
 
-            <div class="ci-price">
-              ₱${fmt(item.price)} × ${item.qty}
-            </div>
+        orderItems.appendChild(div);
 
-            <div style="font-weight:700; color:#2563eb;">
-              ₱${fmt(itemTotal)}
-            </div>
+    });
 
-          </div>
+    const vatEnabled =
+        document.getElementById("vatToggle").checked;
 
-        </div>
+    const vat = vatEnabled ? subtotal * 0.12 : 0;
 
-        <div class="qty-controls">
+    const total = subtotal + vat;
 
-          <button class="qty-btn"
-                  onclick="changeQty('${id}', -1)">
-            −
-          </button>
+    document.getElementById("subtotal").innerText =
+        "₱" + subtotal.toLocaleString(undefined, {
+            minimumFractionDigits: 2
+        });
 
-          <span class="qty-val">${item.qty}</span>
+    document.getElementById("vat").innerText =
+        "₱" + vat.toLocaleString(undefined, {
+            minimumFractionDigits: 2
+        });
 
-          <button class="qty-btn"
-                  onclick="changeQty('${id}', 1)"
-                  ${item.qty >= item.stock ? 'disabled' : ''}>
-            +
-          </button>
+    document.getElementById("total").innerText =
+        "₱" + total.toLocaleString(undefined, {
+            minimumFractionDigits: 2
+        });
 
-          <!-- DELETE BUTTON -->
-          <button class="qty-btn"
-                  onclick="removeItem('${id}')"
-                  style="background:#ef4444; color:white;">
-            🗑
-          </button> 
+    document.getElementById("cartCount").innerText =
+        totalQty;
 
-        </div>
-
-      </div>
-    `;
-  });
-
-  container.innerHTML = html;
-
-  // CART COUNT
-  const totalItems = ids.reduce((sum, id) => {
-    return sum + cart[id].qty;
-  }, 0);
-
-  document.getElementById('cartCount').textContent = totalItems;
-
-  // VAT
-  const vatIncluded =
-    document.getElementById('vatToggle')?.checked;
-
-  let vat = 0;
-  let total = subtotal;
-
-  if (vatIncluded) {
-
-    vat = subtotal * 0.12;
-    total = subtotal + vat;
-
-  }
-
-  // UPDATE TOTALS
-  document.getElementById('subtotal').textContent =
-    '₱' + fmt(subtotal);
-
-  document.getElementById('vat').textContent =
-    '₱' + fmt(vat);
-
-  document.getElementById('total').textContent =
-    '₱' + fmt(total);
-
-  // ENABLE PAYMENT BUTTON
-  document.getElementById('payBtn').disabled = false;
+    document.getElementById("payBtn").disabled = false;
 }
-/* =========================================================
-   PAYMENT
-========================================================= */
 
+/* =========================
+   CHANGE QUANTITY
+========================= */
+function changeQty(index, change) {
+
+    cart[index].qty += change;
+
+    if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+    }
+
+    renderCart();
+}
+
+/* =========================
+   CLEAR CART
+========================= */
+function clearCart() {
+
+    cart = [];
+
+    renderCart();
+}
+
+/* =========================
+   PAYMENT MODAL
+========================= */
 function proceedPayment() {
 
-  const totalText =
-    document.getElementById('total').textContent;
+    const totalText =
+        document.getElementById("total").innerText;
 
-  document.getElementById('payTotalDisplay').textContent =
-    totalText;
+    document.getElementById("payTotalDisplay").innerText =
+        totalText;
 
-  document.getElementById('cashInput').value = '';
+    document.getElementById("cashInput").value = "";
 
-  document.getElementById('changeDisplay').style.display =
-    'none';
+    document.getElementById("changeDisplay").style.display =
+        "none";
 
-  document.getElementById('confirmPayBtn').disabled =
-    true;
+    document.getElementById("confirmPayBtn").disabled = true;
 
-  new bootstrap.Modal(
-    document.getElementById('payModal')
-  ).show();
+    const modal =
+        new bootstrap.Modal(document.getElementById("payModal"));
+
+    modal.show();
 }
 
-/* =========================================================
-   CHANGE
-========================================================= */
-
+/* =========================
+   CALCULATE CHANGE
+========================= */
 function calcChange() {
 
-  const cash =
-    parseFloat(
-      document.getElementById('cashInput').value
-    ) || 0;
-
-  const total =
-    parseFloat(
-      document.getElementById('total')
-      .textContent
-      .replace(/[₱,]/g, '')
-    ) || 0;
-
-  const change = cash - total;
-
-  const disp =
-    document.getElementById('changeDisplay');
-
-  const btn =
-    document.getElementById('confirmPayBtn');
-
-  if (cash >= total && total > 0) {
-
-    disp.style.display = 'flex';
-
-    document.getElementById('changeAmt').textContent =
-      '₱' + fmt(change);
-
-    btn.disabled = false;
-
-  } else {
-
-    disp.style.display = 'none';
-
-    btn.disabled = true;
-
-  }
-}
-
-/* =========================================================
-   CONFIRM PAYMENT
-========================================================= */
-
-function confirmPayment() {
-
-  if (Object.keys(cart).length === 0) return;
-
-  fetch("process_order.php", {
-
-    method: "POST",
-
-    headers: {
-      "Content-Type":
-      "application/x-www-form-urlencoded"
-    },
-
-    body:
-      "cart=" +
-      encodeURIComponent(JSON.stringify(cart))
-
-  })
-
-  .then(res => res.json())
-
-  .then(data => {
-
-    if (data.status === "success") {
-
-      const payModal =
-        bootstrap.Modal.getInstance(
-          document.getElementById('payModal')
+    const total =
+        parseFloat(
+            document.getElementById("total")
+                .innerText
+                .replace(/[₱,]/g, "")
         );
 
-      if (payModal) payModal.hide();
+    const cash =
+        parseFloat(
+            document.getElementById("cashInput").value
+        ) || 0;
 
-      new bootstrap.Modal(
-        document.getElementById('successModal')
-      ).show();
+    const change = cash - total;
 
-      clearCart();
+    if (cash >= total) {
 
-      setTimeout(() => {
+        document.getElementById("changeDisplay").style.display =
+            "flex";
 
-        location.reload();
+        document.getElementById("changeAmt").innerText =
+            "₱" + change.toLocaleString(undefined, {
+                minimumFractionDigits: 2
+            });
 
-      }, 1000);
+        document.getElementById("confirmPayBtn").disabled =
+            false;
 
     } else {
 
-      showToast(
-        "Error processing order",
-        "warning"
-      );
+        document.getElementById("changeDisplay").style.display =
+            "none";
 
+        document.getElementById("confirmPayBtn").disabled =
+            true;
     }
+}
 
-  });
+/* =========================
+   CONFIRM PAYMENT
+========================= */
+function confirmPayment() {
+
+    bootstrap.Modal.getInstance(
+        document.getElementById("payModal")
+    ).hide();
+
+    const successModal =
+        new bootstrap.Modal(
+            document.getElementById("successModal")
+        );
+
+    successModal.show();
 }
 
 /* =========================================================

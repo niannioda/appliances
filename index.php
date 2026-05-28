@@ -334,7 +334,7 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
             </div>
 
             <!-- VAT -->
-            <!-- FOOTER -->
+           <!-- FOOTER -->
 <div class="order-footer">
 
     <!-- SUBTOTAL -->
@@ -397,17 +397,6 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
     </button>
 
 </div>
-
-            <!-- TOTAL -->
-            <div class="summary-row total-row">
-
-                <span>Total</span>
-
-                <strong id="total">
-                    ₱0.00
-                </strong>
-
-            </div>
 
             <!-- PAY -->
             <button class="btn btn-success w-100 btn-lg"

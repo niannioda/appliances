@@ -325,9 +325,11 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
             <!-- SUBTOTAL -->
             <div class="summary-row">
 
-                <span id="subtotal">₱0.00</span>
-<span id="vat">₱0.00</span>
-<span id="total">₱0.00</span>
+                <span>Subtotal</span>
+
+                <strong id="subtotal">
+                    ₱0.00
+                </strong>
 
             </div>
 
@@ -340,7 +342,9 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
 
                     <label class="ms-2">
 
-                        <input type="checkbox" id="vatToggle" onchange="renderCart()">
+                        <input type="checkbox"
+                               id="vatToggle"
+                               onchange="recalc()">
 
                         Include
 

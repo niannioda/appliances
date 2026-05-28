@@ -334,29 +334,69 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
             </div>
 
             <!-- VAT -->
-            <div class="summary-row">
+            <!-- FOOTER -->
+<div class="order-footer">
 
-                <span>
+    <!-- SUBTOTAL -->
+    <div class="summary-row">
 
-                    VAT (12%)
+        <span>Subtotal</span>
 
-                    <label class="ms-2">
+        <strong id="subtotal">
+            ₱0.00
+        </strong>
 
-                        <input type="checkbox"
-                               id="vatToggle"
-                               onchange="recalc()">
+    </div>
 
-                        Include
+    <!-- VAT -->
+    <div class="summary-row">
 
-                    </label>
+        <span>
 
-                </span>
+            VAT (12%)
 
-                <strong id="vatAmount">
-                    ₱0.00
-                </strong>
+            <label class="ms-2">
 
-            </div>
+                <input type="checkbox"
+                       id="vatToggle"
+                       onchange="renderCart()">
+
+                Include
+
+            </label>
+
+        </span>
+
+        <strong id="vat">
+            ₱0.00
+        </strong>
+
+    </div>
+
+    <!-- TOTAL -->
+    <div class="summary-row total-row">
+
+        <span>Total</span>
+
+        <strong id="total">
+            ₱0.00
+        </strong>
+
+    </div>
+
+    <!-- PAY -->
+    <button class="btn btn-success w-100 btn-lg"
+            id="payBtn"
+            onclick="proceedPayment()"
+            disabled>
+
+        <i class="bi bi-cash-stack"></i>
+
+        Proceed to Payment
+
+    </button>
+
+</div>
 
             <!-- TOTAL -->
             <div class="summary-row total-row">

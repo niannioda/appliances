@@ -1,8 +1,8 @@
 <?php
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'appliances_inventory');
+define('DB_HOST', 'sql306.infinityfree.com');
+define('DB_USER', 'if0_42036489_XXX');
+define('DB_PASS', 'sethborres18');
+define('DB_NAME', 'if0_42036489_appliances_inventory');
 
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($conn->connect_error) {

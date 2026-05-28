@@ -335,7 +335,7 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
 
             <!-- VAT -->
             <!-- FOOTER -->
-<div class="order-footer">
+          </div>
 
     <!-- SUBTOTAL -->
     <div class="summary-row">

@@ -334,7 +334,7 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
             </div>
 
             <!-- VAT -->
-           <!-- FOOTER -->
+            <!-- FOOTER -->
 <div class="order-footer">
 
     <!-- SUBTOTAL -->
@@ -397,23 +397,6 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
     </button>
 
 </div>
-
-            <!-- PAY -->
-            <button class="btn btn-success w-100 btn-lg"
-
-                    id="payBtn"
-
-                    onclick="proceedPayment()"
-
-                    disabled>
-
-                <i class="bi bi-cash-stack"></i>
-
-                Proceed to Payment
-
-            </button>
-
-        </div>
 
     </aside>
 

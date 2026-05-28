@@ -188,7 +188,7 @@ function renderCart() {
                   onclick="removeItem('${id}')"
                   style="background:#ef4444; color:white;">
             🗑
-          </button>
+          </button> 
 
         </div>
 

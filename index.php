@@ -367,7 +367,7 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
 
     </button>
 
-</div>
+
 
 </div>
 

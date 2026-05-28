@@ -424,9 +424,283 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/app.js"></script>
 
 <script>
+
+let cart = [];
+
+/* =========================
+   ADD TO CART
+========================= */
+function addToCart(btn) {
+
+    const card = btn.closest(".product-card");
+
+    const product = {
+
+        id: card.dataset.id,
+        name: card.dataset.name,
+        price: parseFloat(card.dataset.price),
+        image: card.dataset.image,
+        qty: 1
+
+    };
+
+    const existing =
+        cart.find(item => item.id === product.id);
+
+    if (existing) {
+
+        existing.qty++;
+
+    } else {
+
+        cart.push(product);
+
+    }
+
+    renderCart();
+}
+
+/* =========================
+   RENDER CART
+========================= */
+function renderCart() {
+
+    const orderItems =
+        document.getElementById("orderItems");
+
+    const cartCount =
+        document.getElementById("cartCount");
+
+    const payBtn =
+        document.getElementById("payBtn");
+
+    orderItems.innerHTML = "";
+
+    if (cart.length === 0) {
+
+        orderItems.innerHTML = `
+
+            <div class="cart-empty">
+
+                <i class="bi bi-cart-x"></i>
+
+                <h6>No appliances added</h6>
+
+                <small>
+                    Click the Add button to order appliances
+                </small>
+
+            </div>
+
+        `;
+
+        document.getElementById("subtotal").innerText =
+            "₱0.00";
+
+        document.getElementById("vat").innerText =
+            "₱0.00";
+
+        document.getElementById("total").innerText =
+            "₱0.00";
+
+        cartCount.innerText = "0";
+
+        payBtn.disabled = true;
+
+        return;
+    }
+
+    let subtotal = 0;
+    let count = 0;
+
+    cart.forEach((item, index) => {
+
+        subtotal += item.price * item.qty;
+
+        count += item.qty;
+
+        orderItems.innerHTML += `
+
+            <div class="d-flex align-items-center mb-3">
+
+                <img src="${item.image}"
+                     width="60"
+                     height="60"
+                     style="object-fit:cover;border-radius:10px">
+
+                <div class="ms-3 flex-grow-1">
+
+                    <div class="fw-semibold">
+                        ${item.name}
+                    </div>
+
+                    <small>
+                        ₱${item.price.toFixed(2)} × ${item.qty}
+                    </small>
+
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+
+                    <button class="btn btn-sm btn-outline-secondary"
+                            onclick="changeQty(${index}, -1)">
+                        -
+                    </button>
+
+                    <span>${item.qty}</span>
+
+                    <button class="btn btn-sm btn-outline-secondary"
+                            onclick="changeQty(${index}, 1)">
+                        +
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+    });
+
+    const vatChecked =
+        document.getElementById("vatToggle").checked;
+
+    const vat =
+        vatChecked ? subtotal * 0.12 : 0;
+
+    const total =
+        subtotal + vat;
+
+    document.getElementById("subtotal").innerText =
+        "₱" + subtotal.toFixed(2);
+
+    document.getElementById("vat").innerText =
+        "₱" + vat.toFixed(2);
+
+    document.getElementById("total").innerText =
+        "₱" + total.toFixed(2);
+
+    cartCount.innerText = count;
+
+    payBtn.disabled = false;
+}
+
+/* =========================
+   CHANGE QUANTITY
+========================= */
+function changeQty(index, change) {
+
+    cart[index].qty += change;
+
+    if (cart[index].qty <= 0) {
+
+        cart.splice(index, 1);
+
+    }
+
+    renderCart();
+}
+
+/* =========================
+   CLEAR CART
+========================= */
+function clearCart() {
+
+    cart = [];
+
+    renderCart();
+}
+
+/* =========================
+   OPEN PAYMENT MODAL
+========================= */
+function proceedPayment() {
+
+    const total =
+        document.getElementById("total").innerText;
+
+    document.getElementById("payTotalDisplay").innerText =
+        total;
+
+    document.getElementById("cashInput").value = "";
+
+    document.getElementById("changeDisplay").style.display =
+        "none";
+
+    document.getElementById("confirmPayBtn").disabled =
+        true;
+
+    const modal =
+        new bootstrap.Modal(
+            document.getElementById("payModal")
+        );
+
+    modal.show();
+}
+
+/* =========================
+   CALCULATE CHANGE
+========================= */
+function calcChange() {
+
+    const total = parseFloat(
+        document.getElementById("total")
+            .innerText
+            .replace("₱", "")
+            .replace(",", "")
+    );
+
+    const cash = parseFloat(
+        document.getElementById("cashInput").value
+    ) || 0;
+
+    const change = cash - total;
+
+    if (cash >= total) {
+
+        document.getElementById("changeDisplay").style.display =
+            "flex";
+
+        document.getElementById("changeAmt").innerText =
+            "₱" + change.toFixed(2);
+
+        document.getElementById("confirmPayBtn").disabled =
+            false;
+
+    } else {
+
+        document.getElementById("changeDisplay").style.display =
+            "none";
+
+        document.getElementById("confirmPayBtn").disabled =
+            true;
+    }
+}
+
+/* =========================
+   CONFIRM PAYMENT
+========================= */
+function confirmPayment() {
+
+    const payModal =
+        bootstrap.Modal.getInstance(
+            document.getElementById("payModal")
+        );
+
+    payModal.hide();
+
+    const successModal =
+        new bootstrap.Modal(
+            document.getElementById("successModal")
+        );
+
+    successModal.show();
+}
+
+/* =========================
+   CATEGORY FILTER
+========================= */
 (function () {
 
   const pills = document.querySelectorAll('.cat-pill');
@@ -488,6 +762,8 @@ $cats = ['All Items','Air Conditioner','Dishwasher','Microwave','Oven','Refriger
   }
 
 })();
+
+</script>
 
 </body>
 </html>

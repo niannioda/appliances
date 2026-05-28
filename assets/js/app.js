@@ -101,9 +101,8 @@ function clearCart() {
 function renderCart() {
 
   const container = document.getElementById('orderItems');
-  const empty = document.getElementById('cartEmpty');
 
-  if (!container || !empty) return;
+  if (!container) return;
 
   const ids = Object.keys(cart);
 
@@ -111,7 +110,7 @@ function renderCart() {
   if (ids.length === 0) {
 
     container.innerHTML = `
-      <div class="cart-empty" id="cartEmpty">
+      <div class="cart-empty">
         <i class="bi bi-cart-x"></i>
         <p>No items yet</p>
         <small>Click + on a product to add</small>
@@ -119,18 +118,27 @@ function renderCart() {
     `;
 
     document.getElementById('cartCount').textContent = '0';
+
+    document.getElementById('subtotal').textContent = '₱0.00';
+    document.getElementById('vat').textContent = '₱0.00';
+    document.getElementById('total').textContent = '₱0.00';
+
     document.getElementById('payBtn').disabled = true;
 
-  
     return;
   }
 
-  // HAS ITEMS
   let html = '';
+
+  let subtotal = 0;
 
   ids.forEach(id => {
 
     const item = cart[id];
+
+    const itemTotal = item.price * item.qty;
+
+    subtotal += itemTotal;
 
     html += `
       <div class="cart-item">
@@ -143,11 +151,19 @@ function renderCart() {
                style="object-fit:cover; border-radius:8px;">
 
           <div>
-            <div class="ci-name">${item.name}</div>
+
+            <div class="ci-name">
+              ${item.name}
+            </div>
 
             <div class="ci-price">
               ₱${fmt(item.price)} × ${item.qty}
             </div>
+
+            <div style="font-weight:700; color:#2563eb;">
+              ₱${fmt(itemTotal)}
+            </div>
+
           </div>
 
         </div>
@@ -167,6 +183,13 @@ function renderCart() {
             +
           </button>
 
+          <!-- DELETE BUTTON -->
+          <button class="qty-btn"
+                  onclick="removeItem('${id}')"
+                  style="background:#ef4444; color:white;">
+            🗑
+          </button>
+
         </div>
 
       </div>
@@ -175,16 +198,39 @@ function renderCart() {
 
   container.innerHTML = html;
 
-  // update cart count
+  // CART COUNT
   const totalItems = ids.reduce((sum, id) => {
     return sum + cart[id].qty;
   }, 0);
 
   document.getElementById('cartCount').textContent = totalItems;
 
-  // enable pay button
-  document.getElementById('payBtn').disabled = false;
+  // VAT
+  const vatIncluded =
+    document.getElementById('vatToggle')?.checked;
 
+  let vat = 0;
+  let total = subtotal;
+
+  if (vatIncluded) {
+
+    vat = subtotal * 0.12;
+    total = subtotal + vat;
+
+  }
+
+  // UPDATE TOTALS
+  document.getElementById('subtotal').textContent =
+    '₱' + fmt(subtotal);
+
+  document.getElementById('vat').textContent =
+    '₱' + fmt(vat);
+
+  document.getElementById('total').textContent =
+    '₱' + fmt(total);
+
+  // ENABLE PAYMENT BUTTON
+  document.getElementById('payBtn').disabled = false;
 }
 /* =========================================================
    PAYMENT

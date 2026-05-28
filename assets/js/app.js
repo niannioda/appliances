@@ -185,28 +185,6 @@ function renderCart() {
   // enable pay button
   document.getElementById('payBtn').disabled = false;
 
-  recalc();
-  /* =========================================================
-   RECALCULATE TOTAL
-========================================================= */
-
-function recalc() {
-
-  let total = 0;
-
-  Object.keys(cart).forEach(id => {
-
-    const item = cart[id];
-
-    total += item.price * item.qty;
-
-  });
-
-  // update total display
-  document.getElementById('total').textContent =
-    '₱' + fmt(total);
-
-}
 }
 /* =========================================================
    PAYMENT

@@ -121,7 +121,7 @@ function renderCart() {
     document.getElementById('cartCount').textContent = '0';
     document.getElementById('payBtn').disabled = true;
 
-    recalc();
+  
     return;
   }
 
